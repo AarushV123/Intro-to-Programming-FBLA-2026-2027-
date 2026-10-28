@@ -143,12 +143,12 @@ _list = [
 
 
 
-    make("mixer-ginger", "cane", "Mocktail Mixer: Ginger Lime", 1200, "each", "general",
-         tags=["gluten_free", "plant_based"], stock=15),
+    make("mixer-ginger", "cane", "Craft Mixer: Ginger Mule", 1200, "each", "general",
+         tags=["gluten_free", "plant_based"], contains=["alcohol"], age21=True, stock=15),
     make("mixer-old-fashioned", "cane", "Craft Mixer: Smoked Old Fashioned", 1400, "each", "general",
-         tags=["gluten_free", "plant_based"], stock=15),
+         tags=["gluten_free", "plant_based"], contains=["alcohol"], age21=True, stock=15),
     make("mixer-spicy", "cane", "Craft Mixer: Spicy Margarita", 1400, "each", "general",
-         tags=["gluten_free", "plant_based"], stock=15),
+         tags=["gluten_free", "plant_based"], contains=["alcohol"], age21=True, stock=15),
 
 
 
