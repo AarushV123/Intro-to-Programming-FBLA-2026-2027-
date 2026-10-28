@@ -1,14 +1,9 @@
 """
-data.py - all the vendors and products live here.
-
-Keeping the data in its own file means app.py only has logic in it.
-To add a product, copy one line from the list below and change the values.
-
-Prices are stored in CENTS (an integer) so we never get rounding
-problems like 0.1 + 0.2 = 0.30000000000000004.
+data.py 
+Thiis is all about the vendors info
 """
 
-# The allergens a shopper can pick on the "My Allergies" page.
+# These are some allergies we encorperated into this project, we could not get all because there are millions of possible allergies
 ALLERGENS = [
     ("nuts", "Tree nuts / peanuts"),
     ("dairy", "Dairy"),
@@ -17,7 +12,7 @@ ALLERGENS = [
     ("sesame", "Sesame"),
 ]
 
-# The diet filters shown on the shop page: (tag, label)
+# Just like the alergies, we also put diet things so people can choose what restrictions they have
 DIET_TAGS = [
     ("gluten_free", "Gluten-free"),
     ("plant_based", "Plant-based"),
@@ -26,7 +21,8 @@ DIET_TAGS = [
     ("dairy_free", "Dairy-free"),
 ]
 
-# Each vendor: id -> name, what they sell
+# This is all of the vendors and what each of them sell, this code alows the user to know each vendor,
+# what they sell and things like that so the user can see everything on one page.
 VENDORS = {
     "sugar-maple": {"name": "Singh Sugar Maple Farm", "category": "Produce / Farm"},
     "fairy-greens": {"name": "Fairy Greens", "category": "Botanicals & Body Care"},
@@ -34,10 +30,10 @@ VENDORS = {
     "north-acres": {"name": "North Acres Farm", "category": "Pastured Meats"},
     "dear-globe": {"name": "Dear Globe Coffee", "category": "Coffee & Drinks"},
     "rooted": {"name": "Rooted", "category": "Vegan / Gluten-Free"},
-    "pierogi": {"name": "Pierogi & Dough", "category": "Prepared Foods"},
+    "pierogi": {"name": "Pierogi", "category": "Prepared Dough"},
     "cane": {"name": "Cane Collective", "category": "Mixology / Beverages"},
-    "empanadas": {"name": "Tasty Empanadas", "category": "Hot Prepared Food"},
-    "crepe": {"name": "Crepe Shoppe Cafe", "category": "Hot Prepared Food"},
+    "empanadas": {"name": "Tasty Empanadas", "category": "Prepared Empanadas"},
+    "crepe": {"name": "Crepe Shoppe Cafe", "category": "Prepared Crepes"},
     "bitty-bread": {"name": "Bitty Bread Bakers", "category": "Sourdough Bakery"},
     "great-harvest": {"name": "Great Harvest Bread", "category": "Bakery"},
 }
@@ -51,52 +47,53 @@ def make(id, vendor, name, price, unit, tax, **extra):
         "name": name,
         "price": price,          # cents per unit
         "unit": unit,            # "each", "lb", "stem"
-        "tax": tax,              # "grocery" (0%), "prepared" (6%) or "general" (6%)
-        "tags": [],              # diet tags (gluten_free, plant_based, whole_grain)
-        "contains": [],          # allergens that are IN the food
-        "may_contain": [],       # allergens from shared equipment (cross-contact)
-        "cold": 0,               # cooler-locker units this item needs
-        "hot": False,            # hot food that should not sit out
-        "stock": 20,             # how many the vendor can supply per market day
+        "tax": tax,              # this is based on md tax"grocery" (0%), "prepared" (6%) or "general" (6%)
+        "tags": [],              # these are teh possible diet/alergy tags... (gluten_free, plant_based, whole_grain)
+        "contains": [],          # contains means all of the things that contain the specific thing like it could contain allergies or gluten, its like that type of stuff
+        "may_contain": [],       # allergens from shared equipment meaning they touch each other so they can each have the allergy
+        "cold": 0,               #
+        "hot": False,            #
+        "stock": 20,             # 
         "per_slot": None,        # max of this item in one 15-minute window
-        "bulk": None,            # (quantity, cheaper price) for bulk pricing
-        "warning": "",           # safety message shown before adding
-        "age21": False,          # needs ID check at pickup
-        "choices": [],           # options like grind size
+        "bulk": None,            # 
+        "warning": "",           # the safety mesage shown before adding so the user knows about the warning
+        "age21": False,          # needs ID check at pickup, some places have items that are not able to be sold to everyone
+        "choices": [],           #
         "choice_label": "",
-        "shelf_days": None,      # days it stays fresh after Friday harvest
+        "shelf_days": None,      # How many days it can stay after being bought
     }
     item.update(extra)
     return item
 
 
 _list = [
-    # ---- Singh Sugar Maple Farm: bulk weight pricing + heat warning ----
     make("apples", "sugar-maple", "Honeycrisp Apples", 450, "lb", "grocery",
          tags=["gluten_free", "plant_based"], stock=60, bulk=(5, 400)),
     make("peaches", "sugar-maple", "Yellow Peaches", 500, "lb", "grocery",
          tags=["gluten_free", "plant_based"], stock=40, bulk=(5, 450)),
     make("ghost-peppers", "sugar-maple", "Ghost Peppers (6 pack)", 600, "each", "grocery",
          tags=["gluten_free", "plant_based"], stock=10,
-         warning="HEAT WARNING: ghost peppers are around 1,000,000 Scoville units. "
-                 "Wear gloves when cutting them and keep them away from kids and pets."),
+         warning="HEAT WARNING: ghost peppers are around 1,000,000 Scoville units. "),
     make("maple-syrup", "sugar-maple", "Maple Syrup (12 oz)", 1400, "each", "grocery",
          tags=["gluten_free", "plant_based"], stock=12),
 
-    # ---- Fairy Greens: shelf-life tracker ----
+
+
     make("microgreens", "fairy-greens", "Microgreens Mix", 400, "each", "grocery",
          tags=["gluten_free", "plant_based"], cold=1, stock=25, shelf_days=5),
     make("sunflower-shoots", "fairy-greens", "Sunflower Shoots", 450, "each", "grocery",
          tags=["gluten_free", "plant_based"], cold=1, stock=15, shelf_days=5),
-    make("lavender-soap", "fairy-greens", "Lavender Soap Bar", 800, "each", "general", stock=20),
+    make("lavender-soap", "fairy-greens", "Lavender Soap", 800, "each", "general", stock=20),
 
-    # ---- Enchanted Flower Farm: stem-count bundles ----
+
+
     make("bouquet", "enchanted-flower", "Seasonal Bouquet", 2200, "each", "general",
          stock=10, shelf_days=7),
     make("diy-stems", "enchanted-flower", "DIY Flower Stems", 150, "stem", "general",
          stock=120, bulk=(12, 120), shelf_days=7),
 
-    # ---- North Acres Farm: cold-chain meats ----
+
+
     make("pork-chops", "north-acres", "Pastured Pork Chops (1 lb)", 1100, "each", "grocery",
          tags=["gluten_free"], cold=2, stock=15),
     make("ground-beef", "north-acres", "Grass-fed Ground Beef (1 lb)", 900, "each", "grocery",
@@ -106,7 +103,8 @@ _list = [
     make("whole-chicken", "north-acres", "Whole Chicken (about 4 lb)", 2400, "each", "grocery",
          tags=["gluten_free"], cold=3, stock=10),
 
-    # ---- Dear Globe Coffee: grind size and temperature choices ----
+
+
     make("coffee-beans", "dear-globe", "Roasted Coffee Beans (12 oz)", 1600, "each", "grocery",
          tags=["gluten_free", "plant_based"], stock=25,
          choices=["Whole bean", "Coarse", "Medium", "Fine"], choice_label="Grind size"),
@@ -117,7 +115,9 @@ _list = [
          tags=["gluten_free"], contains=["dairy"], may_contain=["nuts"], stock=40,
          choices=["Hot", "Iced"], choice_label="Temperature"),
 
-    # ---- Rooted: strictly verified dietary tags ----
+
+
+
     make("kimchi", "rooted", "Kimchi Jar", 900, "each", "grocery",
          tags=["gluten_free", "plant_based"], cold=1, stock=20),
     make("hummus", "rooted", "Classic Hummus", 700, "each", "grocery",
@@ -127,7 +127,9 @@ _list = [
     make("juice", "rooted", "Cold-Pressed Juice", 800, "each", "prepared",
          tags=["gluten_free", "plant_based"], cold=1, stock=30),
 
-    # ---- Pierogi & Dough: batch limits per pickup window ----
+
+
+
     make("pierogi-potato", "pierogi", "Frozen Potato & Cheese Pierogi (dozen)", 1400, "each", "grocery",
          contains=["gluten", "dairy", "eggs"], cold=2, stock=20, per_slot=10),
     make("pierogi-cherry", "pierogi", "Frozen Sweet Cherry Pierogi (dozen)", 1500, "each", "grocery",
@@ -137,7 +139,10 @@ _list = [
     make("pierogi-hot", "pierogi", "Hot Pierogi Box (6)", 1100, "each", "prepared",
          contains=["gluten", "dairy", "eggs"], hot=True, stock=40, per_slot=8),
 
-    # ---- Cane Collective: age-verification gate ----
+
+
+
+
     make("mixer-ginger", "cane", "Mocktail Mixer: Ginger Lime", 1200, "each", "general",
          tags=["gluten_free", "plant_based"], age21=True, stock=15),
     make("mixer-old-fashioned", "cane", "Craft Mixer: Smoked Old Fashioned", 1400, "each", "general",
@@ -145,7 +150,9 @@ _list = [
     make("mixer-spicy", "cane", "Craft Mixer: Spicy Margarita", 1400, "each", "general",
          tags=["gluten_free", "plant_based"], age21=True, stock=15),
 
-    # ---- Tasty Empanadas: hot food, limited per window ----
+
+
+
     make("empanada-beef", "empanadas", "Beef Empanada", 450, "each", "prepared",
          contains=["gluten", "eggs"], hot=True, stock=60, per_slot=14),
     make("empanada-spinach", "empanadas", "Spinach & Cheese Empanada", 450, "each", "prepared",
@@ -153,7 +160,10 @@ _list = [
     make("empanada-bean", "empanadas", "Black Bean Empanada", 450, "each", "prepared",
          contains=["gluten"], may_contain=["dairy", "eggs"], hot=True, stock=40, per_slot=14),
 
-    # ---- Crepe Shoppe Cafe ----
+
+
+
+
     make("crepe-nutella", "crepe", "Hazelnut Chocolate & Strawberry Crepe", 800, "each", "prepared",
          contains=["gluten", "dairy", "eggs", "nuts"], hot=True, stock=30, per_slot=10),
     make("crepe-ham", "crepe", "Ham & Cheese Crepe", 900, "each", "prepared",
@@ -161,7 +171,9 @@ _list = [
     make("crepe-lemon", "crepe", "Lemon Sugar Crepe", 700, "each", "prepared",
          contains=["gluten", "dairy", "eggs"], may_contain=["nuts"], hot=True, stock=30, per_slot=10),
 
-    # ---- Bitty Bread Bakers: sourdough ----
+
+
+
     make("sourdough-wheat", "bitty-bread", "Whole Wheat Sourdough Loaf", 900, "each", "grocery",
          tags=["whole_grain", "plant_based"], contains=["gluten"], stock=20),
     make("sourdough-cinnamon", "bitty-bread", "Cinnamon Raisin Sourdough", 800, "each", "grocery",
@@ -169,7 +181,9 @@ _list = [
     make("sourdough-rye", "bitty-bread", "Seeded Rye Sourdough", 900, "each", "grocery",
          tags=["whole_grain", "plant_based"], contains=["gluten", "sesame"], stock=12),
 
-    # ---- Great Harvest Bread ----
+
+
+
     make("honey-wheat", "great-harvest", "Honey Whole Wheat Loaf", 850, "each", "grocery",
          tags=["whole_grain"], contains=["gluten"], may_contain=["nuts"], stock=20),
     make("cranberry-walnut", "great-harvest", "Cranberry Walnut Loaf", 950, "each", "grocery",
@@ -178,13 +192,15 @@ _list = [
          contains=["gluten", "dairy", "eggs"], may_contain=["nuts"], stock=24),
 ]
 
-# The nut-free / dairy-free tags are worked out automatically from the allergen
-# lists, so they can never disagree with the "contains" information.
+
 for _p in _list:
     if "nuts" not in _p["contains"] and "nuts" not in _p["may_contain"]:
         _p["tags"].append("nut_free")
+        #makes a list of nut free items by using traversing through the list and putting taking all of the items not in the 'contains nuts list' or the 'may contain list'
     if "dairy" not in _p["contains"] and "dairy" not in _p["may_contain"]:
         _p["tags"].append("dairy_free")
+        #makes a lis of dairy free items by using traversing through the list and putting taking all of the items not in the 'contains dairy list' or the 'may contain list'
 
-# id -> product, so we can look things up quickly
+
+# id helps to check the product, so it can look things up quickly
 PRODUCTS = {p["id"]: p for p in _list}
