@@ -31,7 +31,7 @@ from data import ALLERGENS, DIET_TAGS, PRODUCTS, VENDORS
 app = Flask(__name__)
 app.secret_key = "change-this-secret-before-real-use"
 
-# ---------------------------------------------------------------- settings
+#settings
 TAX_PERCENT = {"grocery": 0, "prepared": 6, "general": 6}   # Maryland sales tax
 MIN_AGE = 21                  # age needed for Cane Collective items
 COLD_CAPACITY = 20            # cooler-locker units available in each 15-minute slot
@@ -41,7 +41,7 @@ SLOT_LENGTH = 15              # minutes per pickup window
 ORDERS_FILE = os.path.join(os.path.dirname(__file__), "orders.json")
 
 
-# ---------------------------------------------------------------- small helpers
+#formatting changes
 @app.template_filter("money")
 def money(cents):
     """Turn 1250 into '$12.50'."""
@@ -105,7 +105,7 @@ def best_by(product, market_day):
 app.jinja_env.globals["best_by"] = best_by
 
 
-# ---------------------------------------------------------------- saved orders
+#saved orders
 def load_orders():
     """Read every saved order from orders.json (empty list if none yet)."""
     if not os.path.exists(ORDERS_FILE):
@@ -140,7 +140,7 @@ def slot_usage(orders, date_iso, slot):
     return used
 
 
-# ---------------------------------------------------------------- cart logic
+#cart logic
 def cart_lines(cart):
     """Turn the session cart into a list of lines with prices worked out.
 
@@ -228,7 +228,7 @@ def qty_by_product(lines):
     return totals
 
 
-# ---------------------------------------------------------------- constraint checks
+# checks
 def stock_problems(lines, date_iso, orders):
     """Harvest limits: is there enough left for this market day?"""
     sold = sold_units(orders, date_iso)
@@ -273,7 +273,7 @@ def age_from_birthday(birthday):
     return years
 
 
-# ---------------------------------------------------------------- pages
+#pages
 @app.context_processor
 def add_cart_count():
     """Makes 'cart_count' available in every template for the nav bar."""
