@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Safety check{% endblock %}
+{% block content %}
+<section class="panel warn">
+  <h1>Please confirm before adding</h1>
+  <p>You are adding <strong>{{ qty }} x {{ product.name }}</strong>. We found:</p>
+  <ul>
+    {% for r in reasons %}<li>{{ r }}</li>{% endfor %}
+  </ul>
+  <p>Please talk to the vendor at their booth if you are unsure.</p>
+  <form method="post" action="{{ url_for('add_to_cart') }}">
+    <input type="hidden" name="product_id" value="{{ product.id }}">
+    <input type="hidden" name="qty" value="{{ qty }}">
+    <input type="hidden" name="choice" value="{{ choice }}">
+    <input type="hidden" name="confirmed" value="yes">
+    <button type="submit">I understand, add it</button>
+    <a href="{{ url_for('shop') }}">No thanks, go back</a>
+  </form>
+</section>
+{% endblock %}

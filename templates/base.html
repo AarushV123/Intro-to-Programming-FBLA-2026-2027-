@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Pre-Order{% endblock %} | Old Ellicott City Farmers Market</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to main content</a>
+
+  <header class="top">
+    <a class="brand" href="{{ url_for('shop') }}">Old Ellicott City Farmers Market <span>Pre-Order</span></a>
+    <nav aria-label="Main menu">
+      <a href="{{ url_for('shop') }}">Shop</a>
+      <a href="{{ url_for('profile') }}">My Allergies</a>
+      <a href="{{ url_for('lookup') }}">Find My Order</a>
+      <a class="cart-link" href="{{ url_for('cart_page') }}">Cart ({{ cart_count }})</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash" role="status">
+          {% for m in messages %}<p>{{ m }}</p>{% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <p><strong>Tiber Park</strong>, 8061 Main Street, Ellicott City, MD 21043 &middot; Saturdays 9:00 AM - 1:00 PM
+       (May 23 - Oct 24, plus a Thanksgiving market on Nov 21)</p>
+    <p>Pay at pickup. Prices and stock shown are sample data. Allergy information is a helpful guide only:
+       always check with the vendor at the booth.</p>
+  </footer>
+</body>
+</html>

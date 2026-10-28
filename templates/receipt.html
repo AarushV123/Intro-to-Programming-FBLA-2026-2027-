@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Order {{ order.id }}{% endblock %}
+{% block content %}
+<section class="panel ok">
+  <h1>Order confirmed: {{ order.id }}</h1>
+  <p>Pick up everything at the market on <strong>{{ order.date|nice_date }} at {{ order.slot }}</strong>
+     in Tiber Park, 8061 Main Street. Pay at pickup. Name on order: {{ order.name }}.</p>
+  <p class="small">Save your order number. You can look it up later with your email.</p>
+</section>
+
+{% for inv in order.invoices %}
+<section class="panel">
+  <h2>{{ inv.vendor_name }}</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+    <tbody>
+    {% for l in inv.lines %}
+      <tr><td>{{ l.name }}{% if l.choice %} ({{ l.choice }}){% endif %}</td><td>{{ l.qty }}</td><td>{{ l.unit_price|money }}</td><td>{{ l.total|money }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="sums">Subtotal {{ inv.subtotal|money }} &middot; Tax {{ inv.tax|money }} &middot; <strong>{{ inv.total|money }}</strong></p>
+  {% for f in inv.flags %}<p class="small flag">{{ f }}</p>{% endfor %}
+</section>
+{% endfor %}
+
+<section class="panel totals"><p class="big">Order total: {{ order.total|money }}</p></section>
+<p><a href="{{ url_for('shop') }}">Back to the market</a></p>
+{% endblock %}

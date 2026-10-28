@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Shop{% endblock %}
+{% block content %}
+
+<section class="hero">
+  {% if next_date %}
+    <h1>Order ahead for {{ next_date.isoformat()|nice_date }}</h1>
+    <p>
+      {% if days_away == 0 %}Market day is today!{% elif days_away == 1 %}Market day is tomorrow.{% else %}Market day is in {{ days_away }} days.{% endif %}
+      Order by 5:00 PM the Friday before, then pick everything up in one stop with one pickup time.
+    </p>
+  {% else %}
+    <h1>The market season has ended</h1>
+    <p>Thank you for a great season! You can still browse what our vendors sell.</p>
+  {% endif %}
+  {% if allergens %}
+    <p class="notice">Allergy profile on: we will warn you about {{ allergens|join(", ") }}.</p>
+  {% else %}
+    <p class="notice">Have a food allergy? <a href="{{ url_for('profile') }}">Set up your allergy profile</a> so we can warn you.</p>
+  {% endif %}
+</section>
+
+<form class="filters" method="get" action="{{ url_for('shop') }}">
+  <h2>Find what you need</h2>
+  <div class="row">
+    <label>Search
+      <input type="search" name="q" value="{{ search }}" placeholder="bread, kimchi, flowers...">
+    </label>
+    <label>Vendor
+      <select name="vendor">
+        <option value="">All vendors</option>
+        {% for vid, v in vendors.items() %}
+          <option value="{{ vid }}" {% if vid == vendor %}selected{% endif %}>{{ v.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </div>
+  <fieldset>
+    <legend>Dietary filters</legend>
+    {% for tag, label in diet_tags %}
+      <label class="check"><input type="checkbox" name="tag" value="{{ tag }}" {% if tag in chosen_tags %}checked{% endif %}> {{ label }}</label>
+    {% endfor %}
+    <label class="check"><input type="checkbox" name="hide" value="1" {% if hide %}checked{% endif %}> Hide items with my allergens</label>
+  </fieldset>
+  <button type="submit">Apply filters</button>
+  <a href="{{ url_for('shop') }}">Clear</a>
+</form>
+
+<p class="count">Showing {{ items|length }} item{{ "" if items|length == 1 else "s" }}</p>
+
+<div class="grid">
+{% for item in items %}
+  {% set p = item.p %}
+  <article class="card">
+    <p class="vendor">{{ vendors[p.vendor].name }}</p>
+    <h3>{{ p.name }}</h3>
+    <p class="price">{{ p.price|money }} {{ "each" if p.unit == "each" else "per " ~ p.unit }}
+      {% if p.bulk %}<small>Buy {{ p.bulk[0] }}+ for {{ p.bulk[1]|money }} each</small>{% endif %}
+    </p>
+
+    <p class="badges">
+      {% for t in p.tags %}<span class="badge good">{{ t|replace("_", " ") }}</span>{% endfor %}
+      {% if p.cold %}<span class="badge cold">Cold item</span>{% endif %}
+      {% if p.hot %}<span class="badge hot">Made hot</span>{% endif %}
+      {% if p.age21 %}<span class="badge id">21+ - ID at pickup</span>{% endif %}
+      {% if p.tax == "grocery" %}<span class="badge">No tax</span>{% else %}<span class="badge">6% tax</span>{% endif %}
+    </p>
+
+    {% if p.contains %}<p class="small">Contains: {{ p.contains|join(", ") }}</p>{% endif %}
+    {% if p.may_contain %}<p class="small">May contain: {{ p.may_contain|join(", ") }}</p>{% endif %}
+    {% for h in item.hits %}<p class="alert">{{ h }}</p>{% endfor %}
+    {% if p.warning %}<p class="alert">Heat warning on this item</p>{% endif %}
+    {% if p.shelf_days and next_date %}<p class="small">Picked fresh the day before. Best by {{ best_by(p, next_date) }}.</p>{% endif %}
+
+    {% if item.left <= 0 %}
+      <p class="soldout">Sold out for this market day</p>
+    {% else %}
+      {% if item.left <= 5 %}<p class="low">Only {{ item.left }} left this market day</p>{% endif %}
+      <form method="post" action="{{ url_for('add_to_cart') }}">
+        <input type="hidden" name="product_id" value="{{ p.id }}">
+        {% if p.choices %}
+          <label>{{ p.choice_label }}
+            <select name="choice">{% for c in p.choices %}<option>{{ c }}</option>{% endfor %}</select>
+          </label>
+        {% endif %}
+        <label>Quantity
+          <input type="number" name="qty" value="1" min="1" max="{{ item.left }}">
+        </label>
+        <button type="submit">Add to cart</button>
+      </form>
+    {% endif %}
+  </article>
+{% else %}
+  <p>No items match those filters. Try clearing a filter.</p>
+{% endfor %}
+</div>
+{% endblock %}

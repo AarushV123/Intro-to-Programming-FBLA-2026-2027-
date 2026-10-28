@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Cart{% endblock %}
+{% block content %}
+<h1>Your cart</h1>
+
+{% if not invoices %}
+  <p>Your cart is empty. <a href="{{ url_for('shop') }}">Browse the market</a>.</p>
+{% else %}
+  <p>One order, one pickup time. Each vendor still gets their own invoice below.</p>
+
+  {% for inv in invoices %}
+  <section class="panel">
+    <h2>{{ inv.vendor_name }}</h2>
+    <table>
+      <caption class="sr">Items from {{ inv.vendor_name }}</caption>
+      <thead><tr><th>Item</th><th>Price</th><th>Qty</th><th>Total</th></tr></thead>
+      <tbody>
+      {% for l in inv.lines %}
+        <tr>
+          <td>{{ l.product.name }}{% if l.choice %} <small>({{ l.choice }})</small>{% endif %}</td>
+          <td>{{ l.unit_price|money }}</td>
+          <td>
+            <form method="post" action="{{ url_for('update_cart') }}" class="inline">
+              <input type="hidden" name="key" value="{{ l.key }}">
+              <label class="sr" for="q-{{ loop.index }}-{{ inv.vendor_id }}">Quantity for {{ l.product.name }}</label>
+              <input id="q-{{ loop.index }}-{{ inv.vendor_id }}" type="number" name="qty" value="{{ l.qty }}" min="0" max="{{ l.product.stock }}">
+              <button type="submit">Update</button>
+            </form>
+          </td>
+          <td>{{ l.total|money }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <p class="sums">Subtotal {{ inv.subtotal|money }} &middot; Tax {{ inv.tax|money }} &middot; <strong>Invoice total {{ inv.total|money }}</strong></p>
+    {% for f in inv.flags %}<p class="small flag">{{ f }}</p>{% endfor %}
+  </section>
+  {% endfor %}
+
+  <section class="panel totals">
+    <p>Subtotal: {{ subtotal|money }}</p>
+    <p>Maryland sales tax: {{ tax|money }}</p>
+    <p class="big">Order total: {{ total|money }}</p>
+    <a class="button" href="{{ url_for('checkout') }}">Choose pickup time</a>
+  </section>
+{% endif %}
+{% endblock %}

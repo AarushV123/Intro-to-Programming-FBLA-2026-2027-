@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ vendor.name }} queue{% endblock %}
+{% block content %}
+<h1>{{ vendor.name }}: pickup queue</h1>
+<p class="small">Vendor view for packing orders. A real version would be behind a login.</p>
+
+<form method="get" class="inline">
+  <label>Market day
+    <select name="date">{% for d in days %}<option value="{{ d }}" {% if d == chosen %}selected{% endif %}>{{ d|nice_date }}</option>{% endfor %}</select>
+  </label>
+  <button type="submit">Show</button>
+</form>
+
+{% for entry in queue %}
+<section class="panel">
+  <h2>{{ entry.order.slot }} - {{ entry.order.id }} ({{ entry.order.name }})</h2>
+  <ul>
+    {% for l in entry.invoice.lines %}<li>{{ l.qty }} x {{ l.name }}{% if l.choice %} ({{ l.choice }}){% endif %}</li>{% endfor %}
+  </ul>
+  {% for f in entry.invoice.flags %}<p class="small flag">{{ f }}</p>{% endfor %}
+</section>
+{% else %}
+  <p>No orders yet for this day.</p>
+{% endfor %}
+
+<p>Other vendors:
+  {% for vid, v in vendors.items() %}<a href="{{ url_for('vendor_queue', vendor_id=vid) }}">{{ v.name }}</a>{% if not loop.last %} &middot; {% endif %}{% endfor %}
+</p>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}My Allergies{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1>My allergy profile</h1>
+  <p>Pick the allergens you avoid. We will show alerts on products, can hide them from the shop,
+     and will ask you to confirm before anything risky goes in your cart. Your allergies are also
+     sent to each vendor on your order so they can pack it carefully.</p>
+  <form method="post">
+    <fieldset>
+      <legend>I avoid:</legend>
+      {% for key, label in allergen_list %}
+        <label class="check"><input type="checkbox" name="allergen" value="{{ key }}" {% if key in mine %}checked{% endif %}> {{ label }}</label>
+      {% endfor %}
+    </fieldset>
+    <button type="submit">Save profile</button>
+  </form>
+</section>
+{% endblock %}
