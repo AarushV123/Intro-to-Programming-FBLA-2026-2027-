@@ -274,6 +274,14 @@ def age_from_birthday(birthday):
 
 
 #pages
+@app.before_request
+def ensure_cart_exists():
+    """A fresh session should start with an empty cart."""
+    cart = session.get("cart")
+    if not isinstance(cart, dict):
+        session["cart"] = {}
+
+
 @app.context_processor
 def add_cart_count():
     """Makes 'cart_count' available in every template for the nav bar."""
@@ -395,6 +403,14 @@ def update_cart():
         else:
             cart[key] = min(qty, product["stock"])
     session["cart"] = cart
+    return redirect(url_for("cart_page"))
+
+
+@app.route("/cart/clear", methods=["POST"])
+def clear_cart():
+    """Remove every item from the cart."""
+    session["cart"] = {}
+    flash("Your cart has been cleared.")
     return redirect(url_for("cart_page"))
 
 

@@ -26,6 +26,11 @@
               <input id="q-{{ loop.index }}-{{ inv.vendor_id }}" type="number" name="qty" value="{{ l.qty }}" min="0" max="{{ l.product.stock }}">
               <button type="submit">Update</button>
             </form>
+            <form method="post" action="{{ url_for('update_cart') }}" class="inline">
+              <input type="hidden" name="key" value="{{ l.key }}">
+              <input type="hidden" name="qty" value="0">
+              <button type="submit" class="danger">Remove</button>
+            </form>
           </td>
           <td>{{ l.total|money }}</td>
         </tr>
@@ -41,7 +46,12 @@
     <p>Subtotal: {{ subtotal|money }}</p>
     <p>Maryland sales tax: {{ tax|money }}</p>
     <p class="big">Order total: {{ total|money }}</p>
-    <a class="button" href="{{ url_for('checkout') }}">Choose pickup time</a>
+    <div class="cart-actions">
+      <a class="button" href="{{ url_for('checkout') }}">Choose pickup time</a>
+      <form method="post" action="{{ url_for('clear_cart') }}" class="inline">
+        <button type="submit" class="danger">Clear cart</button>
+      </form>
+    </div>
   </section>
 {% endif %}
 {% endblock %}
