@@ -66,7 +66,8 @@ a:focus, button:focus, input:focus, select:focus { outline: 3px solid rgba(71, 1
   font-family: Georgia, "Times New Roman", serif;
   color: var(--green-dark);
 }
-.notice { background: var(--green-soft); padding: .7rem .9rem; border-radius: 10px; border: 1px solid rgba(71, 109, 70, 0.18); }
+.notice { margin-bottom: 0; }
+.notice a { color: #1558a6; text-decoration: underline; }
 
 .filters, .panel {
   background: var(--paper);
