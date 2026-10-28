@@ -8,15 +8,14 @@ IMPORTANT:============================HOW TO RUN APP:===========================
 Then open http://127.0.0.1:5000 in your browser.
 
 What this program does:
-  1. Multi-vendor cart: one order, one receipt, but a separate invoice per vendor.
-  2. Tax by category: groceries 0%, prepared food and general goods 6% (Maryland).
-  3. Pickup slots: 15-minute windows from 9:00 AM to 1:00 PM on market Saturdays,
-     with a shared cold-locker capacity and per-window limits on hot food.
-  4. Allergy profile: a safety confirmation is required before adding a risky item.
-  5. Age gate: Cane Collective items need a 21+ check and an ID flag at pickup.
-
-Prices, stock and capacity numbers are sample data. Always check tax rules with
-the Maryland Comptroller before using real numbers.
+  1. A user can check online for what things are at the market, buy from different vendors, and the app will send the respective amount to 
+     each vendor
+  2. Since this is a real-world local business at the Old Ellicott City farmers market, the app uses the Maryland tax on some specific items.
+  3. There are pickup slots from 9 AM to 1 PM on market Saturdays; there is also cold food and limits on how much hot food you can get from 
+     one specific vendor.
+  4. There is also an allergy option where you can select which allergies or food restrictions you have, and then the app will tell you/give you
+     warnings about what foods you can eat vs. the foods you cannot eat.
+  5. Lastly, the Cane Collective items need an ID because they have items that are for people 21+ years old.
 """
 
 import json
