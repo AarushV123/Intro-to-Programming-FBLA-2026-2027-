@@ -19,51 +19,56 @@ What this program does:
 """
 
 import json
+# json lets the app save orders and load them later, meaning every order gets saved and can be pulled again
+
 import os
+# os helps json and helps the app find the orders file on the computer
+
 import re
+# the import re helps check that email addresses and phone numbers are valid emails/numbers
+
+#This helps the app know the data, time and that type of stuff
 from datetime import date, datetime, timedelta
 
+#we used flask as the main way to create the website and its very useful for UI and handling user interactions
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 
 from data import ALLERGENS, DIET_TAGS, PRODUCTS, VENDORS
+#imports the information from the data.py file, meaining the vendors, food....
 
 app = Flask(__name__)
-app.secret_key = "change-this-secret-before-real-use"
+
+app.secret_key = "password"
 
 #settings
-TAX_PERCENT = {"grocery": 0, "prepared": 6, "general": 6}   # Maryland sales tax
-MIN_AGE = 21                  # age needed for Cane Collective items
-COLD_CAPACITY = 20            # cooler-locker units available in each 15-minute slot
-OPEN_MINUTES = 9 * 60         # market opens at 9:00 AM (minutes after midnight)
-CLOSE_MINUTES = 13 * 60       # market closes at 1:00 PM
-SLOT_LENGTH = 15              # minutes per pickup window
+TAX_PERCENT = {"grocery": 0, "prepared": 6, "general": 6}   # used to set the MD tax
+MIN_AGE = 21                  
+COLD_CAPACITY = 20            # This is how many cold food items can be stored in each pickup slot
+OPEN_MINUTES = 9 * 60         # 9 am open time
+CLOSE_MINUTES = 13 * 60       # 1 PM close time
+SLOT_LENGTH = 15              
 ORDERS_FILE = os.path.join(os.path.dirname(__file__), "orders.json")
+# Used to store all orders in the orders.json file, important for saving data
 
 
-#formatting changes
 @app.template_filter("money")
 def money(cents):
-    """Turn 1250 into '$12.50'."""
     return "${:,.2f}".format(cents / 100)
-
+#This allows for using cents and go too the second decimal spot with the $ sign
 
 @app.template_filter("nice_date")
 def nice_date(iso):
-    """Turn '2026-11-21' into 'Sat, Nov 21'."""
     d = date.fromisoformat(iso)
     return d.strftime("%a, %b ") + str(d.day)
-
+#Makes the dates easy to look at like "Sat, Nov 21"
 
 def percent_of(cents, percent):
-    """percent% of cents, rounded to the nearest cent using only whole numbers."""
     return (cents * percent + 50) // 100
-
+#Calculates the percentage
 
 def market_dates():
-    """Dates a customer can still order for.
-
-    The market runs Saturdays May 23 - Oct 24, 2026 plus a Thanksgiving market
-    on Nov 21. Online orders close at 5:00 PM on the Friday before.
+    """These are the dates the market is open for, this function is used the make the list
+    of avaliable dates the user can purchase things on.
     """
     all_dates = []
     day = date(2026, 5, 23)
@@ -82,7 +87,8 @@ def market_dates():
 
 
 def time_slots():
-    """Every 15-minute window label: '9:00 AM', '9:15 AM' ... '12:45 PM'."""
+    """We arranged this project so there are 15 minute pickup windows, which means 
+    the customers can choose a specific time to pick up their orders."""
     slots = []
     for minutes in range(OPEN_MINUTES, CLOSE_MINUTES, SLOT_LENGTH):
         hour, minute = divmod(minutes, 60)
@@ -93,7 +99,8 @@ def time_slots():
 
 
 def best_by(product, market_day):
-    """Best-by date for fresh items: picked the day before market + shelf life."""
+    """This is another cool feature where the app will give you the dates for when it 
+    would be best to pick up the items from the market, (shelf life things)"""
     if not product["shelf_days"] or market_day is None:
         return ""
     picked = market_day - timedelta(days=1)
@@ -104,9 +111,8 @@ def best_by(product, market_day):
 app.jinja_env.globals["best_by"] = best_by
 
 
-#saved orders
+#section for the orders part of the website.
 def load_orders():
-    """Read every saved order from orders.json (empty list if none yet)."""
     if not os.path.exists(ORDERS_FILE):
         return []
     with open(ORDERS_FILE) as f:
@@ -115,21 +121,21 @@ def load_orders():
 
 def save_orders(orders):
     with open(ORDERS_FILE, "w") as f:
-        json.dump(orders, f, indent=2)
+        json.dump(orders, f, indent=2) # .dump basically just dumps the orders to json
 
 
 def sold_units(orders, date_iso):
-    """How many of each product are already ordered for one market day."""
     sold = {}
     for order in orders:
         if order["date"] == date_iso:
             for item in order["items"]:
-                sold[item["pid"]] = sold.get(item["pid"], 0) + item["qty"]
+                sold[item["pid"]] = sold.get(item["pid"], 0) + item["qty"] # pid is the product id and qty is the quantity sold
     return sold
-
+    #self explanitory - how many units were sold on that day
 
 def slot_usage(orders, date_iso, slot):
-    """Cold units and per-product counts already booked in one pickup window."""
+    """This function is used because we need to track how many cold units and 
+    how many of each product are already booked in a specific pickup window(15 minute time slot)"""
     used = {"cold": 0, "items": {}}
     for order in orders:
         if order["date"] == date_iso and order["slot"] == slot:
@@ -137,22 +143,21 @@ def slot_usage(orders, date_iso, slot):
             for item in order["items"]:
                 used["items"][item["pid"]] = used["items"].get(item["pid"], 0) + item["qty"]
     return used
+                # this nested for loop is used because each order can contain multiple items and we need
+                # to count the total quantity of each product booked in that time slot because there is a limit 
+                #for how much can be picked up at once
 
-
-#cart logic
+# this is the part for the shopping cart section
 def cart_lines(cart):
-    """Turn the session cart into a list of lines with prices worked out.
-
-    Cart keys look like 'latte|Hot' (product id, then the option chosen).
-    """
     lines = []
     for key, qty in cart.items():
-        pid, _, choice = key.partition("|")
+        pid, _, choice = key.partition("|") #partitition is a func that allows you to split the string and use the parts separately
         product = PRODUCTS.get(pid)
         if product is None:
             continue
         unit_price = product["price"]
-        # bulk pricing: buy enough and every unit gets the cheaper price
+        #since this is real life, there are discounts added in the actual
+        # farmers market, so the more you buy of one item, the cheaper the unit price becomes
         if product["bulk"] and qty >= product["bulk"][0]:
             unit_price = product["bulk"][1]
         lines.append({
@@ -160,29 +165,34 @@ def cart_lines(cart):
             "unit_price": unit_price, "total": unit_price * qty,
         })
     return lines
-
+            # this function might look complicated but it just calculates the total price for each line in the cart 
+            # while applying any bulk discounts if they are able to be placed
 
 def allergen_hits(product, allergens):
-    """Plain-English allergy matches between a product and the shopper's profile."""
+    """Check if a product contains or may contain any of the shopper's allergens."""
     hits = []
     for a in allergens:
         if a in product["contains"]:
             hits.append("Contains {}.".format(a))
         elif a in product["may_contain"]:
             hits.append("May contain {} (shared equipment).".format(a))
-    return hits
+    return hits # this for loop checks each allergen againt the product's "contains" and "may_contain" lists and returns any matches found
+    # its used because we need to inform the shopper if the product contains or may contain any of their allergens before they add it to the cart
 
 
 def safety_reasons(product, allergens):
-    """Everything that needs a confirmation click before the item is added."""
+    """We added a saftey check just in case so the user has to click
+    through confirmation actually being able to add items to the cart"""
     reasons = allergen_hits(product, allergens)
-    if product["warning"]:
+    if product["warning"]:    # this just means if the product has a warning, it will be added to the safety reasons list
         reasons.append(product["warning"])
     return reasons
 
 
 def build_invoices(lines, allergens):
-    """Split one cart into one invoice per vendor, with tax worked out per vendor."""
+    """This is a long function and the reason is because each vendor needs to get a 
+    share/seperate bill of what they are owed and what they are responsible for for the user
+    """
     by_vendor = {}
     for line in lines:
         by_vendor.setdefault(line["product"]["vendor"], []).append(line)
@@ -191,45 +201,49 @@ def build_invoices(lines, allergens):
     for vendor_id, vendor_lines in by_vendor.items():
         subtotal = sum(l["total"] for l in vendor_lines)
 
-        # add up each tax class separately, then apply that class's rate
-        class_totals = {}
+        #in this app there is two types of tax, meaning some products are different with diff tax rates
+        # this means we need to calc the total for each item seperatly
+        class_totals = {} 
         for l in vendor_lines:
             cls = l["product"]["tax"]
             class_totals[cls] = class_totals.get(cls, 0) + l["total"]
         tax = sum(percent_of(amount, TAX_PERCENT[cls]) for cls, amount in class_totals.items())
 
-        # notes the vendor needs when they pack the order
+        #The reason we made this is to ensure that the vendor is awarer of the special 
+        # things for eaach order
+        # all of these things are flags about each possible order
         flags = []
         if any(l["product"]["age21"] for l in vendor_lines):
-            flags.append("ID CHECK REQUIRED AT PICKUP (21+)")
+            flags.append("ID CHECK REQUIRED AT PICKUP (21+)") # appends the ID check requirement to the flags list
         if any(l["product"]["cold"] for l in vendor_lines):
-            flags.append("Keep cold: bag goes in the cooler locker")
+            flags.append("Keep cold: bag goes in the cooler locker") # similar to the other append but it just adds that it needs to be cold
         if any(l["product"]["hot"] for l in vendor_lines):
             flags.append("Hot food: make fresh so it is ready at the start of the window")
-        for l in vendor_lines:
-            for hit in allergen_hits(l["product"], allergens):
-                flags.append("ALLERGY ALERT - {}: {}".format(l["product"]["name"], hit))
+        for lines in vendor_lines:
+            for hit in allergen_hits(lines["product"], allergens):
+                flags.append("ALLERGY ALERT - {}: {}".format(lines["product"]["name"], hit))
 
-        invoices.append({
+        invoices.append({ # adds the invoice for this vendor to the invoices list
             "vendor_id": vendor_id, "vendor_name": VENDORS[vendor_id]["name"],
             "lines": vendor_lines, "subtotal": subtotal, "tax": tax,
             "total": subtotal + tax, "flags": flags,
-        })
-    return invoices
+        }) 
+    return invoices 
 
 
 def qty_by_product(lines):
-    """Total quantity per product id (different options of one product are added)."""
+    #Total quantity per product id
+    # this is used to group quantities by product id
     totals = {}
-    for l in lines:
-        pid = l["product"]["id"]
-        totals[pid] = totals.get(pid, 0) + l["qty"]
+    for line in lines:
+        pid = line["product"]["id"]
+        totals[pid] = totals.get(pid, 0) + line["qty"]
     return totals
 
 
 # checks
 def stock_problems(lines, date_iso, orders):
-    """Harvest limits: is there enough left for this market day?"""
+    # this is used because we need to check if there is enough stock for the given market day
     sold = sold_units(orders, date_iso)
     problems = []
     for pid, qty in qty_by_product(lines).items():
@@ -239,8 +253,9 @@ def stock_problems(lines, date_iso, orders):
     return problems
 
 
-def slot_problems(lines, date_iso, slot, orders):
-    """Cold-locker capacity and per-window batch limits for one pickup slot."""
+def slot_problems(lines, date_iso, slot, orders): # fixed
+    # Sometimes the per window limits are too much for certain products and that can cause problems.
+    # this func is used to check if there are problems with the given slot
     used = slot_usage(orders, date_iso, slot)
     problems = []
 
@@ -256,15 +271,14 @@ def slot_problems(lines, date_iso, slot, orders):
 
 
 def slot_status(lines, date_iso, orders):
-    """For every slot: is it available, and if not, why not?"""
     status = []
     for slot in time_slots():
         problems = slot_problems(lines, date_iso, slot, orders)
-        status.append({"slot": slot, "ok": not problems, "reason": " ".join(problems)})
+        status.append({"slot": slot, "ok": not problems, "reason": " ".join(problems)}) # ..
     return status
 
 
-def age_from_birthday(birthday):
+def age_from_birthday(birthday): 
     today = date.today()
     years = today.year - birthday.year
     if (today.month, today.day) < (birthday.month, birthday.day):
@@ -273,28 +287,28 @@ def age_from_birthday(birthday):
 
 
 #pages
-@app.before_request
+@app.before_request 
+"""the @ is a decorator and we use this decorator because we want to chec if the cart is actually their before each request"""
+
 def ensure_cart_exists():
-    """A fresh session should start with an empty cart."""
     cart = session.get("cart")
-    if not isinstance(cart, dict):
+    if not isinstance(cart, dict): # isinstance checks if the cart is a dict 
         session["cart"] = {}
 
 
-@app.context_processor
+@app.context_processor # another decorator to make the data available in all templates
 def add_cart_count():
-    """Makes 'cart_count' available in every template for the nav bar."""
-    return {"cart_count": sum(session.get("cart", {}).values())}
+    return {"cart_count": sum(session.get("cart", {}).values())} # session.get gets the cart from the session and js creates a empty dict if it doesn't exist
 
 
-@app.route("/")
-def shop():
+@app.route("/") # @app.route is a decorator that maps the URL "/" to the shop function
+def shop(): 
     dates = market_dates()
     next_date = dates[0] if dates else None
     orders = load_orders()
     sold = sold_units(orders, next_date.isoformat()) if next_date else {}
-
-    # filters from the URL
+# we use this to create the actuall shop page
+# the tags, vendors, searchs.... are put here because they are used to filter the items displayed on the shop page
     chosen_tags = request.args.getlist("tag")
     vendor = request.args.get("vendor", "")
     search = request.args.get("q", "").strip().lower()
@@ -323,9 +337,10 @@ def shop():
     )
 
 
+# we use this function and the @app route to handle the profile pg, where the shopper is able to update their allergies
+# then it gets stored and used to filter risky items in the shop page
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
-    """Where the shopper tells us which allergens to watch for."""
     if request.method == "POST":
         valid = [key for key, _ in ALLERGENS]
         session["allergens"] = [a for a in request.form.getlist("allergen") if a in valid]
@@ -353,7 +368,7 @@ def add_to_cart():
     if product["choices"] and choice not in product["choices"]:
         choice = product["choices"][0]
 
-    # safety rule: a risky item needs a "yes, I understand" click first
+    # bc people have allergies and dietary restrictions, there is a confirmation step before adding risky items to the cart
     reasons = safety_reasons(product, session.get("allergens", []))
     if reasons and request.form.get("confirmed") != "yes":
         return render_template("confirm.html", product=product, qty=qty, choice=choice, reasons=reasons)
@@ -362,24 +377,24 @@ def add_to_cart():
     key = product["id"] + "|" + choice
     cart[key] = cart.get(key, 0) + qty
 
-    # never let one product go over its stock in total
+    # since people might want more than one thing of an item, we need to check if there is enough items in stock so ppl can add them to the cart without exceeding the available quantity
     total = sum(q for k, q in cart.items() if k.split("|")[0] == product["id"])
     if total > product["stock"]:
         cart[key] -= total - product["stock"]
         flash("Limited harvest: only {} of {} available.".format(product["stock"], product["name"]))
         if cart[key] <= 0:
-            del cart[key]
-    else:
-        flash("Added {} x {} to your cart.".format(qty, product["name"]))
+            del cart[key] 
+    else:                               # this whole long if statmenet is used because we need to handle the case where the total quantity in the cart does not exceed the available stock
+        flash("Added {} x {} to your cart.".format(qty, product["name"])) 
     session["cart"] = cart
     return redirect(request.referrer or url_for("shop"))
 
 
-@app.route("/cart")
+@app.route("/cart") # using @app.route again to map the URL "/cart" to the cart_page function, this just helps to allow the website to go to different pages
 def cart_page():
     lines = cart_lines(session.get("cart", {}))
-    invoices = build_invoices(lines, session.get("allergens", []))
-    return render_template(
+    invoices = build_invoices(lines, session.get("allergens", [])) # build invoices func to generate the list of invoices for the cart items
+    return render_template(            # render template is the func used to generate the HTML for the cart page
         "cart.html", invoices=invoices,
         subtotal=sum(i["subtotal"] for i in invoices),
         tax=sum(i["tax"] for i in invoices),
@@ -387,7 +402,7 @@ def cart_page():
     )
 
 
-@app.route("/cart/update", methods=["POST"])
+@app.route("/cart/update", methods=["POST"]) # @app.route is used again just like before to map the URL "/cart/update" to the update_cart function, this helps to allow the website to handle updating the cart items
 def update_cart():
     cart = session.get("cart", {})
     key = request.form.get("key", "")
@@ -396,7 +411,7 @@ def update_cart():
             qty = int(request.form.get("qty", "0"))
         except ValueError:
             qty = cart[key]
-        product = PRODUCTS[key.split("|")[0]]
+        product = PRODUCTS[key.split("|")[0]] # we use key split because the key in the cart is a combination of the product ID and the choice, separated by a | character
         if qty <= 0:
             del cart[key]
         else:
@@ -405,7 +420,7 @@ def update_cart():
     return redirect(url_for("cart_page"))
 
 
-@app.route("/cart/clear", methods=["POST"])
+@app.route("/cart/clear", methods=["POST"]) # similarly @app.route is used again here to map the URL "/cart/clear" to the clear_cart function, this helps to allow the website to handle clearing the cart items
 def clear_cart():
     """Remove every item from the cart."""
     session["cart"] = {}
@@ -415,9 +430,11 @@ def clear_cart():
 
 @app.route("/checkout", methods=["GET", "POST"])
 def checkout():
+    # the GET shows the checkout while the POST means the shopper submitted it.
     cart = session.get("cart", {})
     lines = cart_lines(cart)
     if not lines:
+        # this means that there is nothing to pay for like the cart is empty, so it will send the shopper back to the store.
         flash("Your cart is empty.")
         return redirect(url_for("shop"))
 
@@ -425,6 +442,7 @@ def checkout():
     if not dates:
         flash("The market season is over. See you next year!")
         return redirect(url_for("cart_page"))
+    # this will keep the checkout focused on the next few market days, and ignore dates not on that list.
     date_choices = [d.isoformat() for d in dates[:4]]
     chosen_date = request.values.get("date", date_choices[0])
     if chosen_date not in date_choices:
@@ -433,15 +451,17 @@ def checkout():
     allergens = session.get("allergens", [])
     orders = load_orders()
     invoices = build_invoices(lines, allergens)
+    # we need to ask for an age check only if at least one item in the cart requires it, so this line of code does that
     needs_age = any(l["product"]["age21"] for l in lines)
     slots = slot_status(lines, chosen_date, orders)
     errors = []
     form = {"name": "", "email": "", "phone": "", "slot": "", "dob": ""}
 
     if request.method == "POST":
-        form = {k: request.form.get(k, "").strip() for k in form}
+        # this line of code takes out extra spaces so they dont cause some errors 
 
-        # 1. contact details
+        # Check contact details before saving an order, so the customer can be reached, important for the day of when the order transaction happens, makes the user experience smoother.
+        # easier and allows the process between the user and the vendor to go smoothly.
         if len(form["name"]) < 2:
             errors.append("Please enter your name.")
         if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", form["email"]):
@@ -449,7 +469,7 @@ def checkout():
         if form["phone"] and len(re.sub(r"\D", "", form["phone"])) != 10:
             errors.append("Phone numbers need 10 digits (or leave it blank).")
 
-        # 2. age gate
+        # Only check a birthday for carts with age-restricted items but people can also lie about age, this is just a safety filter, the ID verification will happen at pickup.
         if needs_age:
             try:
                 birthday = date.fromisoformat(form["dob"])
@@ -460,7 +480,6 @@ def checkout():
             except ValueError:
                 errors.append("Please enter your birth date to buy Cane Collective items.")
 
-        # 3. stock and pickup slot
         errors += stock_problems(lines, chosen_date, orders)
         if form["slot"] not in time_slots():
             errors.append("Please choose a pickup time.")
@@ -468,13 +487,18 @@ def checkout():
             errors += slot_problems(lines, chosen_date, form["slot"], orders)
 
         if not errors:
+
+                # it is easiest if we create the order dictionary first and then append it to the orders list because it allows us to reference the order ID immediately after creation.
+                # and by doing this we can immediately use the order ID for the receipt page.
             order = {
                 "id": "OEC-{}".format(1001 + len(orders)),
                 "name": form["name"], "email": form["email"].lower(), "phone": form["phone"],
                 "date": chosen_date, "slot": form["slot"],
-                "age_checked": needs_age,   # we keep only yes/no, never the birth date
+                # We only need to record that an age check was needed, not the birthday itself.
+                "age_checked": needs_age,
                 "cold_units": sum(l["product"]["cold"] * l["qty"] for l in lines),
                 "items": [{"pid": l["product"]["id"], "qty": l["qty"]} for l in lines],
+                # Each vendor gets their own invoice so they can prepare their part of the order and they can also get the money from the user based on what part they are owed based on the users order
                 "invoices": [
                     {
                         "vendor_id": inv["vendor_id"], "vendor_name": inv["vendor_name"],
@@ -496,6 +520,8 @@ def checkout():
             session["my_orders"] = session.get("my_orders", []) + [order["id"]]
             return redirect(url_for("receipt", order_id=order["id"]))
 
+            # The render template function below is used to display the checkout page with all the necessary information for the user to complete their order.
+            # this means it will show the checkout page with the current cart items, available pickup dates and times, and any relevant errors or warnings based on what they orderd
     any_open = any(s["ok"] for s in slots)
     return render_template(
         "checkout.html", invoices=invoices, total=sum(i["total"] for i in invoices),
@@ -510,7 +536,7 @@ def receipt(order_id):
     if order is None or order_id not in session.get("my_orders", []):
         flash("Please look up your order with your order number and email.")
         return redirect(url_for("lookup"))
-    return render_template("receipt.html", order=order)
+    return render_template("receipt.html", order=order) # render template is used again here because it allows the user to view the details of their completed order.
 
 
 @app.route("/lookup", methods=["GET", "POST"])
@@ -522,13 +548,14 @@ def lookup():
             if order["id"] == order_id and order["email"] == email:
                 session["my_orders"] = session.get("my_orders", []) + [order_id]
                 return redirect(url_for("receipt", order_id=order_id))
-        flash("We could not find an order with that number and email.")
+        flash("We could not find an order with that number and email.") # if the order is not found, we display this message instead of just throwing an error.
     return render_template("lookup.html")
 
 
-@app.route("/vendor/<vendor_id>")
+@app.route("/vendor/<vendor_id>") 
 def vendor_queue(vendor_id):
-    """Fulfillment queue a vendor can open on Saturday morning to pack orders."""
+# this func shows the fulfillment queue for a specific vendor, allowing them to see
+# which orders they need to prepare for a given date and what are all of the things they need to do for that order.
     if vendor_id not in VENDORS:
         flash("Unknown vendor.")
         return redirect(url_for("shop"))
@@ -546,5 +573,10 @@ def vendor_queue(vendor_id):
                            vendor_id=vendor_id, queue=queue, days=days, chosen=chosen)
 
 
+#all of the functions with the @app.route decorator were used to define the routes for the web application so everything connects with each other smoothly and
+# when clicking on something, the website would go to the right page and not throw errors.
+
 if __name__ == "__main__":
     app.run(debug=True)
+
+# this is the most essential thing because it allows the web application to run and be accessible through a local server, making it possible for users to interact with the website.
