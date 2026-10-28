@@ -1,6 +1,5 @@
 # Old Ellicott City Farmers Market - Pre-Order System
 
-Teacher reference build (Flask). Not intended to be submitted as student work.
 
 ## Run it
     pip install -r requirements.txt
