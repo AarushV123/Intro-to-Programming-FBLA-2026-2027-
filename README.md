@@ -6,7 +6,7 @@ Old Ellicott City Farmers Market - Pre-Order System is a digital ordering platfo
     pip install -r requirements.txt
 ## 2. Then you will need to run this line of code to get the app online:
     python app.py
-## T3. hen you can open the app by openning this website
+## 3. Then you can open the app by openning this website
 Open http://127.0.0.1:5000
 
 ## These are the list of files:
