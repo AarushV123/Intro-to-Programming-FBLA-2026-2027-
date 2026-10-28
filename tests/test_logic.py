@@ -49,3 +49,19 @@ try:
     check("21 today", app.age_from_birthday(date(t.year - 21, t.month, t.day)), 21)
     check("one day short of 21", app.age_from_birthday(date(t.year - 21, t.month, t.day) + __import__("datetime").timedelta(days=1)), 20)
 except Exception as e: print("FAIL - age_from_birthday crashed:", e)
+
+# in app.py after confirming the warning for ghost peppers, an error of "Method Not Allowed" happens.
+#added this code to prevent this error by confirming the warning before adding the product and makes sure the request goes through...
+try:
+    with app.app.test_client() as client:
+        confirm = client.post("/add", data={"product_id": "ghost-peppers", "qty": "1"})
+        check("ghost pepper warning shown", confirm.status_code, 200)
+        added = client.post(
+            "/add",
+            data={"product_id": "ghost-peppers", "qty": "1", "confirmed": "yes"},
+            headers={"Referer": "http://localhost/add"},
+        )
+        check("confirmed ghost pepper redirects to shop", added.location, "/")
+        with client.session_transaction() as stored:
+            check("confirmed ghost pepper added", stored["cart"], {"ghost-peppers|": 1})
+except Exception as e: print("FAIL - ghost pepper confirmation crashed:", e)

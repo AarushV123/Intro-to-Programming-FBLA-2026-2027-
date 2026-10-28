@@ -288,7 +288,7 @@ def age_from_birthday(birthday):
 
 #pages
 @app.before_request 
-"""the @ is a decorator and we use this decorator because we want to chec if the cart is actually their before each request"""
+#the @ is a decorator and we use this decorator because we want to chec if the cart is actually their before each request
 
 def ensure_cart_exists():
     cart = session.get("cart")
@@ -387,7 +387,7 @@ def add_to_cart():
     else:                               # this whole long if statmenet is used because we need to handle the case where the total quantity in the cart does not exceed the available stock
         flash("Added {} x {} to your cart.".format(qty, product["name"])) 
     session["cart"] = cart
-    return redirect(request.referrer or url_for("shop"))
+    return redirect(url_for("shop"))
 
 
 @app.route("/cart") # using @app.route again to map the URL "/cart" to the cart_page function, this just helps to allow the website to go to different pages
