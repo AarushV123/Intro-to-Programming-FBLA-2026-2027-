@@ -209,7 +209,7 @@ PRODUCT_IMAGES = {
     "ground-beef": "ground-beef.jpg",
     "lamb-chops": "lamb-chops.jpg",
     "whole-chicken": "whole-chicken.jpg",
-    "coffee-beans": "coffee.jpg",
+    "coffee-beans": "coffee-beans.jpg",
     "drip-coffee": "drip-coffee.jpg",
     "latte": "latte.jpg",
     "kimchi": "kimchi.jpg",

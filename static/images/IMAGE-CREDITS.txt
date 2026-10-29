@@ -16,8 +16,8 @@ https://commons.wikimedia.org/wiki/File:Cinnamon_swirl_raisin_bread.jpg
 sunflower-shoots.jpg - Pannet, "Sunflower microgreens 01", CC BY 4.0
 https://commons.wikimedia.org/wiki/File:Sunflower_microgreens_01.jpg
 
-drip-coffee.jpg - nickgraywfu, "Americana - Waffle House coffee cup", CC BY-SA 2.0
-https://www.flickr.com/photos/35034365374@N01/70038278
+drip-coffee.jpg - Julius Schorzman, "A small cup of coffee", CC BY-SA 2.0
+https://commons.wikimedia.org/wiki/File:A_small_cup_of_coffee.JPG
 kimchi.jpg - Nutrition, Food Safety & Health, "Kimchi ferment_1 quart jars", CC0
 https://www.flickr.com/photos/93936679@N05/48407633972
 cashew-spread.jpg - David Jackmanson, "Vegan Cheeses", CC BY 2.0
@@ -46,5 +46,16 @@ cranberry-walnut.jpg - vanhookc, "Cranberry and Walnut Bread", CC BY-SA 2.0
 https://www.flickr.com/photos/97651299@N00/48019994001
 scone.jpg - theimpulsivebuy, "Pumpkin Spice Scone Mix", CC BY-SA 2.0
 https://www.flickr.com/photos/27410581@N07/29332446603
+
+greens.jpg - Lufa Farms, "Lufa Farms Microgreens in Trays", CC BY-SA 2.0
+https://commons.wikimedia.org/wiki/File:Lufa_Farms_Microgreens_in_Trays.jpg
+coffee-beans.jpg - MarkSweep, "Roasted coffee beans", public domain
+https://commons.wikimedia.org/wiki/File:Roasted_coffee_beans.jpg
+peaches.jpg - Jack Dykinga, USDA, "Autumn Red peaches", public domain
+https://commons.wikimedia.org/wiki/File:Autumn_Red_peaches.jpg
+flower-stems.jpg - Samia ety, "A bucket of flower", CC BY-SA 4.0
+https://commons.wikimedia.org/wiki/File:A_bucket_of_flower.jpg
+meat.jpg - Shixart1985, "Chef holding a wooden board with two raw seasoned pork chops", CC BY 2.0
+https://commons.wikimedia.org/wiki/File:Chef_holding_a_wooden_board_with_two_raw_seasoned_pork_chops.jpg
 
 The other photos are from Unsplash and used under the Unsplash License.
