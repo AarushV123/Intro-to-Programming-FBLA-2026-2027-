@@ -551,6 +551,11 @@ def shop():
 # we use this to create the actuall shop page
 # the tags, vendors, searchs.... are put here because they are used to filter the items displayed on the shop page
     chosen_tags = request.args.getlist("tag")
+    valid_allergens = {key for key, _ in ALLERGENS}
+    chosen_allergens = [
+        allergen for allergen in request.args.getlist("allergen")
+        if allergen in valid_allergens
+    ]
     vendor = request.args.get("vendor", "")
     search = request.args.get("q", "").strip().lower()
     hide_allergens = request.args.get("hide") == "1"
@@ -565,6 +570,11 @@ def shop():
             continue
         if any(tag not in product["tags"] for tag in chosen_tags):
             continue
+        if any(
+            allergen in product["contains"] or allergen in product["may_contain"]
+            for allergen in chosen_allergens
+        ):
+            continue
         hits = allergen_hits(product, allergens)
         if hide_allergens and hits:
             continue
@@ -572,6 +582,7 @@ def shop():
 
     return render_template(
         "shop.html", items=items, vendors=VENDORS, diet_tags=DIET_TAGS,
+        allergens_list=ALLERGENS, chosen_allergens=chosen_allergens,
         chosen_tags=chosen_tags, vendor=vendor, search=request.args.get("q", ""),
         hide=hide_allergens, allergens=allergens, next_date=next_date,
         days_away=(next_date - date.today()).days if next_date else None,

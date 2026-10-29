@@ -36,9 +36,12 @@
     </label>
   </div>
   <fieldset>
-    <legend>Dietary filters</legend>
+    <legend>Dietary filters and allergens</legend>
     {% for tag, label in diet_tags %}
       <label class="check"><input type="checkbox" name="tag" value="{{ tag }}" {% if tag in chosen_tags %}checked{% endif %}> {{ label }}</label>
+    {% endfor %}
+    {% for allergen, label in allergens_list %}
+      <label class="check"><input type="checkbox" name="allergen" value="{{ allergen }}" {% if allergen in chosen_allergens %}checked{% endif %}> No {{ label }}</label>
     {% endfor %}
     <label class="check"><input type="checkbox" name="hide" value="1" {% if hide %}checked{% endif %}> Hide items with my allergens</label>
   </fieldset>
