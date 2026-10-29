@@ -20,4 +20,6 @@ Open http://127.0.0.1:5000
 - The market vendor list: this sample uses the 12 vendors instead of all of the vendors in the actual old ellicott city farmers market
 - Because this is a real life app, we encorperated tax as well and its based of off maryland
 - The Vendor queue pages have no login. A real system would actually need one...
-- Product and vendor photos are stored locally in `static/images`, so they work offline. Every product has a distinct photo. Image attribution and license details are in `static/images/IMAGE-CREDITS.txt`.
+- Images of the food are added and cited in static/images/IMAGE-CREDITS.txt.
+- The app also allows your order history
+- The app also marks the most popular picks

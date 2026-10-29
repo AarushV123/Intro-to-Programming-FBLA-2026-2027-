@@ -198,6 +198,28 @@ button:active, .button:active { transform: translateY(0); }
   border-radius: 12px;
   margin-bottom: .75rem;
 }
+.receipt-actions { display: flex; justify-content: flex-end; gap: .65rem; margin-bottom: 1rem; }
+.eyebrow { color: var(--green-dark); font-size: .85rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.receipt-summary h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; color: var(--green-dark); }
+.receipt-number { font-weight: 700; font-size: 1.15rem; margin: .25rem 0; }
+.receipt-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: .75rem;
+  margin: 1rem 0 0;
+}
+.receipt-details div { background: rgba(255, 255, 255, .65); border-radius: 10px; padding: .65rem .8rem; }
+.receipt-details dt { color: var(--muted); font-size: .8rem; }
+.receipt-details dd { margin: .15rem 0 0; font-weight: 700; }
+.receipt-total h2, .receipt-total p { margin: .2rem 0; }
+@media print {
+  body { background: white; color: black; }
+  .top, footer, .skip, .receipt-actions { display: none !important; }
+  main { max-width: none; padding: 0; }
+  .panel { box-shadow: none; break-inside: avoid; }
+  .receipt-summary, .receipt-total { border-color: #888; }
+  a { color: inherit; }
+}
 .card h3 {
   margin: .15rem 0 .35rem;
   font-family: Georgia, "Times New Roman", serif;
@@ -218,6 +240,7 @@ button:active, .button:active { transform: translateY(0); }
   background: #f7f1e5;
 }
 .badge.good { border-color: rgba(71, 109, 70, 0.5); color: var(--green-dark); }
+.badge.popular { background: #fff0d6; border-color: #d3a15c; color: #694313; font-weight: 700; }
 .badge.cold { border-color: rgba(29, 92, 140, 0.5); color: #1d5c8c; }
 .badge.hot { border-color: rgba(163, 51, 51, 0.5); color: #a33; }
 .badge.id { background: var(--warn-bg); border-color: rgba(138, 59, 0, 0.4); color: var(--warn); }

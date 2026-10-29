@@ -455,17 +455,19 @@ def checkout():
     needs_age = any(l["product"]["age21"] for l in lines)
     slots = slot_status(lines, chosen_date, orders)
     errors = []
-    form = {"name": "", "email": "", "phone": "", "slot": "", "dob": ""}
+    form = {
+        "name": request.form.get("name", "").strip(),
+        "email": request.form.get("email", "").strip(),
+        "phone": request.form.get("phone", "").strip(),
+        "slot": request.form.get("slot", "").strip(),
+        "dob": request.form.get("dob", "").strip(),
+    }
 
     if request.method == "POST":
-        # this line of code takes out extra spaces so they dont cause some errors 
-
-        # Check contact details before saving an order, so the customer can be reached, important for the day of when the order transaction happens, makes the user experience smoother.
-        # easier and allows the process between the user and the vendor to go smoothly.
-        if len(form["name"]) < 2:
+        if not form["name"]:
             errors.append("Please enter your name.")
-        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", form["email"]):
-            errors.append("Please enter a valid email address.")
+        if not form["email"]:
+            errors.append("Please enter an email or order lookup name.")
         if form["phone"] and len(re.sub(r"\D", "", form["phone"])) != 10:
             errors.append("Phone numbers need 10 digits (or leave it blank).")
 

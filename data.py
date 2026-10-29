@@ -45,6 +45,7 @@ def make(id, vendor, name, price, unit, tax, **extra):
         "id": id,
         "vendor": vendor,
         "name": name,
+        "popular": False,
         "price": price,          # cents per unit
         "unit": unit,            # "each", "lb", "stem"
         "tax": tax,              # this is based on md tax"grocery" (0%), "prepared" (6%) or "general" (6%)
@@ -68,14 +69,14 @@ def make(id, vendor, name, price, unit, tax, **extra):
 
 _list = [
     make("apples", "sugar-maple", "Honeycrisp Apples", 450, "lb", "grocery",
-         tags=["gluten_free", "plant_based"], stock=60, bulk=(5, 400)),
+         tags=["gluten_free", "plant_based"], stock=60, bulk=(5, 400), popular=True),
     make("peaches", "sugar-maple", "Yellow Peaches", 500, "lb", "grocery",
          tags=["gluten_free", "plant_based"], stock=40, bulk=(5, 450)),
     make("ghost-peppers", "sugar-maple", "Ghost Peppers (6 pack)", 600, "each", "grocery",
          tags=["gluten_free", "plant_based"], stock=10,
          warning="HEAT WARNING: ghost peppers are around 1,000,000 Scoville units. "),
     make("maple-syrup", "sugar-maple", "Maple Syrup (12 oz)", 1400, "each", "grocery",
-         tags=["gluten_free", "plant_based"], stock=12),
+         tags=["gluten_free", "plant_based"], stock=12, popular=True),
 
 
 
@@ -108,19 +109,20 @@ _list = [
 
     make("coffee-beans", "dear-globe", "Roasted Coffee Beans (12 oz)", 1600, "each", "grocery",
          tags=["gluten_free", "plant_based"], stock=25,
-         choices=["Whole bean", "Coarse", "Medium", "Fine"], choice_label="Grind size"),
+         choices=["Whole bean", "Coarse", "Medium", "Fine"], choice_label="Grind size",
+         popular=True),
     make("drip-coffee", "dear-globe", "Fresh Brewed Coffee", 350, "each", "prepared",
          tags=["gluten_free", "plant_based"], stock=60,
-         choices=["Hot", "Iced"], choice_label="Temperature"),
+         choices=["Hot", "Iced"], choice_label="Temperature", popular=True),
     make("latte", "dear-globe", "Latte", 550, "each", "prepared",
          tags=["gluten_free"], contains=["dairy"], may_contain=["nuts"], stock=40,
-         choices=["Hot", "Iced"], choice_label="Temperature"),
+         choices=["Hot", "Iced"], choice_label="Temperature", popular=True),
 
 
 
 
     make("kimchi", "rooted", "Kimchi Jar", 900, "each", "grocery",
-         tags=["gluten_free", "plant_based"], cold=1, stock=20),
+         tags=["gluten_free", "plant_based"], cold=1, stock=20, popular=True),
     make("hummus", "rooted", "Classic Hummus", 700, "each", "grocery",
          tags=["gluten_free", "plant_based"], contains=["sesame"], cold=1, stock=20),
     make("cashew-spread", "rooted", "Cashew Cheese Spread", 900, "each", "grocery",
@@ -132,13 +134,13 @@ _list = [
 
 
     make("pierogi-potato", "pierogi", "Frozen Potato & Cheese Pierogi (dozen)", 1400, "each", "grocery",
-         contains=["gluten", "dairy", "eggs"], cold=2, stock=20, per_slot=10),
+         contains=["gluten", "dairy", "eggs"], cold=2, stock=20, per_slot=10, popular=True),
     make("pierogi-cherry", "pierogi", "Frozen Sweet Cherry Pierogi (dozen)", 1500, "each", "grocery",
          contains=["gluten", "eggs"], may_contain=["dairy"], cold=2, stock=15, per_slot=10),
     make("pierogi-kraut", "pierogi", "Frozen Sauerkraut & Mushroom Pierogi (dozen)", 1400, "each", "grocery",
          contains=["gluten"], may_contain=["dairy", "eggs"], cold=2, stock=15, per_slot=10),
     make("pierogi-hot", "pierogi", "Hot Pierogi Box (6)", 1100, "each", "prepared",
-         contains=["gluten", "dairy", "eggs"], hot=True, stock=40, per_slot=8),
+         contains=["gluten", "dairy", "eggs"], hot=True, stock=40, per_slot=8, popular=True),
 
 
 
@@ -155,7 +157,7 @@ _list = [
 
 
     make("empanada-beef", "empanadas", "Beef Empanada", 450, "each", "prepared",
-         contains=["gluten", "eggs"], hot=True, stock=60, per_slot=14),
+         contains=["gluten", "eggs"], hot=True, stock=60, per_slot=14, popular=True),
     make("empanada-spinach", "empanadas", "Spinach & Cheese Empanada", 450, "each", "prepared",
          contains=["gluten", "dairy", "eggs"], hot=True, stock=50, per_slot=14),
     make("empanada-bean", "empanadas", "Black Bean Empanada", 450, "each", "prepared",
@@ -166,7 +168,7 @@ _list = [
 
 
     make("crepe-nutella", "crepe", "Hazelnut Chocolate & Strawberry Crepe", 800, "each", "prepared",
-         contains=["gluten", "dairy", "eggs", "nuts"], hot=True, stock=30, per_slot=10),
+         contains=["gluten", "dairy", "eggs", "nuts"], hot=True, stock=30, per_slot=10, popular=True),
     make("crepe-ham", "crepe", "Ham & Cheese Crepe", 900, "each", "prepared",
          contains=["gluten", "dairy", "eggs"], hot=True, stock=30, per_slot=10),
     make("crepe-lemon", "crepe", "Lemon Sugar Crepe", 700, "each", "prepared",
@@ -176,7 +178,7 @@ _list = [
 
 
     make("sourdough-wheat", "bitty-bread", "Whole Wheat Sourdough Loaf", 900, "each", "grocery",
-         tags=["whole_grain", "plant_based"], contains=["gluten"], stock=20),
+         tags=["whole_grain", "plant_based"], contains=["gluten"], stock=20, popular=True),
     make("sourdough-cinnamon", "bitty-bread", "Cinnamon Raisin Sourdough", 800, "each", "grocery",
          tags=["plant_based"], contains=["gluten"], may_contain=["nuts"], stock=15),
     make("sourdough-rye", "bitty-bread", "Seeded Rye Sourdough", 900, "each", "grocery",

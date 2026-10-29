@@ -1,18 +1,31 @@
 {% extends "base.html" %}
 {% block title %}Order {{ order.id }}{% endblock %}
 {% block content %}
-<section class="panel ok">
-  <h1>Order confirmed: {{ order.id }}</h1>
-  <p>Pick up everything at the market on <strong>{{ order.date|nice_date }} at {{ order.slot }}</strong>
-     in Tiber Park, 8061 Main Street. Pay at pickup. Name on order: {{ order.name }}.</p>
-  <p class="small">Save your order number. You can look it up later with your email.</p>
+<div class="receipt-actions">
+  <a class="button" href="{{ url_for('shop') }}">Continue shopping</a>
+  <button type="button" onclick="window.print()">Print receipt</button>
+</div>
+
+<section class="panel ok receipt-summary">
+  <p class="eyebrow">Old Ellicott City Farmers Market</p>
+  <h1>Order receipt</h1>
+  <p class="receipt-number">Order {{ order.id }}</p>
+  <p>Thanks for ordering! Bring this receipt or your order number when you pick up.</p>
+  <dl class="receipt-details">
+    <div><dt>Pickup day</dt><dd>{{ order.date|nice_date }}</dd></div>
+    <div><dt>Pickup time</dt><dd>{{ order.slot }}</dd></div>
+    <div><dt>Pickup location</dt><dd>Tiber Park, 8061 Main Street</dd></div>
+    <div><dt>Name on order</dt><dd>{{ order.name }}</dd></div>
+    <div><dt>Payment</dt><dd>Pay at pickup</dd></div>
+    <div><dt>Items</dt><dd>{{ order["items"]|sum(attribute="qty") }}</dd></div>
+  </dl>
 </section>
 
 {% for inv in order.invoices %}
 <section class="panel">
-  <h2>{{ inv.vendor_name }}</h2>
+  <h2>Items from {{ inv.vendor_name }}</h2>
   <table>
-    <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+    <thead><tr><th>Item</th><th>Qty</th><th>Each</th><th>Total</th></tr></thead>
     <tbody>
     {% for l in inv.lines %}
       <tr>
@@ -30,6 +43,9 @@
 </section>
 {% endfor %}
 
-<section class="panel totals"><p class="big">Order total: {{ order.total|money }}</p></section>
-<p><a href="{{ url_for('shop') }}">Back to the market</a></p>
+<section class="panel totals receipt-total">
+  <h2>Order total</h2>
+  <p class="big">{{ order.total|money }}</p>
+  <p class="small">Pay at pickup. Vendor subtotals include applicable sales tax.</p>
+</section>
 {% endblock %}

@@ -60,6 +60,7 @@
     </p>
 
     <p class="badges">
+      {% if p.popular %}<span class="badge popular">Popular pick: bought frequently</span>{% endif %}
       {% for t in p.tags %}<span class="badge good">{{ t|replace("_", " ") }}</span>{% endfor %}
       {% if p.cold %}<span class="badge cold">Cold item</span>{% endif %}
       {% if p.hot %}<span class="badge hot">Made hot</span>{% endif %}
