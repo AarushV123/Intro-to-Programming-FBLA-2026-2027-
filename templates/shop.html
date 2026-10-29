@@ -52,6 +52,7 @@
 {% for item in items %}
   {% set p = item.p %}
   <article class="card">
+    <img class="product-image" src="{{ url_for('static', filename='images/' ~ p.image) }}" alt="{{ p.name }}" loading="lazy">
     <p class="vendor">{{ vendors[p.vendor].name }}</p>
     <h3>{{ p.name }}</h3>
     <p class="price">{{ p.price|money }} {{ "each" if p.unit == "each" else "per " ~ p.unit }}

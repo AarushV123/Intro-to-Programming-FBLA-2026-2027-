@@ -15,7 +15,13 @@
     <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
     <tbody>
     {% for l in inv.lines %}
-      <tr><td>{{ l.name }}{% if l.choice %} ({{ l.choice }}){% endif %}</td><td>{{ l.qty }}</td><td>{{ l.unit_price|money }}</td><td>{{ l.total|money }}</td></tr>
+      <tr>
+        <td class="item-with-image">
+          {% if l.image %}<img class="line-image" src="{{ url_for('static', filename='images/' ~ l.image) }}" alt="" loading="lazy">{% endif %}
+          <span>{{ l.name }}{% if l.choice %} ({{ l.choice }}){% endif %}</span>
+        </td>
+        <td>{{ l.qty }}</td><td>{{ l.unit_price|money }}</td><td>{{ l.total|money }}</td>
+      </tr>
     {% endfor %}
     </tbody>
   </table>

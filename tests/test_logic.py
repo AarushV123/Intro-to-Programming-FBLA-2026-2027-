@@ -1,5 +1,5 @@
 
-import os, sys
+import hashlib, os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # Import the real app functions and product list so these checks match what the website uses.
@@ -21,6 +21,21 @@ try:
     check("percent_of 25 at 6%", app.percent_of(25, 6), 2)
     check("percent_of 0", app.percent_of(0, 6), 0)
 except Exception as e: print("FAIL - percent_of crashed:", e)
+
+# Every catalog item should point to a bundled image so the shop works offline.
+try:
+    image_dir = os.path.join(os.path.dirname(__file__), "..", "static", "images")
+    missing = [p["image"] for p in PRODUCTS.values()
+               if not os.path.isfile(os.path.join(image_dir, p["image"]))]
+    check("all product images exist locally", missing, [])
+    image_names = [p["image"] for p in PRODUCTS.values()]
+    check("every product has a unique image", len(set(image_names)), len(PRODUCTS))
+    image_hashes = []
+    for image_name in image_names:
+        with open(os.path.join(image_dir, image_name), "rb") as image_file:
+            image_hashes.append(hashlib.sha256(image_file.read()).digest())
+    check("every product image has unique content", len(set(image_hashes)), len(PRODUCTS))
+except Exception as e: print("FAIL - product image check crashed:", e)
 
 # A product can contain an allergen, only possibly contain it, or have no match at all.
 try:
@@ -56,6 +71,7 @@ try:
     with app.app.test_client() as client:
         confirm = client.post("/add", data={"product_id": "ghost-peppers", "qty": "1"})
         check("ghost pepper warning shown", confirm.status_code, 200)
+        check("warning page shows product image", b"/static/images/peppers.jpg" in confirm.data, True)
         added = client.post(
             "/add",
             data={"product_id": "ghost-peppers", "qty": "1", "confirmed": "yes"},
@@ -64,4 +80,10 @@ try:
         check("confirmed ghost pepper redirects to shop", added.location, "/")
         with client.session_transaction() as stored:
             check("confirmed ghost pepper added", stored["cart"], {"ghost-peppers|": 1})
+        shop = client.get("/")
+        check("shop shows an image for every product", shop.data.count(b'class="product-image"'), len(PRODUCTS))
+        cart_page = client.get("/cart")
+        check("cart shows product image", b"/static/images/peppers.jpg" in cart_page.data, True)
+        checkout_page = client.get("/checkout")
+        check("checkout shows product image", b"/static/images/peppers.jpg" in checkout_page.data, True)
 except Exception as e: print("FAIL - ghost pepper confirmation crashed:", e)

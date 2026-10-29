@@ -1,3 +1,5 @@
+# added images to the website...
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +12,10 @@
   <a class="skip" href="#main">Skip to main content</a>
 
   <header class="top">
-    <a class="brand" href="{{ url_for('shop') }}">Old Ellicott City Farmers Market <span>Pre-Order</span></a>
+    <a class="brand" href="{{ url_for('shop') }}">
+      <img class="brand-image" src="{{ url_for('static', filename='images/flowers.jpg') }}" alt="">
+      <span class="brand-name">Old Ellicott City Farmers Market <span>Pre-Order</span></span>
+    </a>
     <nav aria-label="Main menu">
       <a href="{{ url_for('shop') }}">Shop</a>
       <a href="{{ url_for('profile') }}">My Allergies</a>

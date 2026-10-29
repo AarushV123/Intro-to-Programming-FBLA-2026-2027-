@@ -505,7 +505,8 @@ def checkout():
                         "subtotal": inv["subtotal"], "tax": inv["tax"], "total": inv["total"],
                         "flags": inv["flags"],
                         "lines": [
-                            {"name": l["product"]["name"], "choice": l["choice"], "qty": l["qty"],
+                            {"name": l["product"]["name"], "image": l["product"]["image"],
+                             "choice": l["choice"], "qty": l["qty"],
                              "unit_price": l["unit_price"], "total": l["total"]}
                             for l in inv["lines"]
                         ],
@@ -527,6 +528,7 @@ def checkout():
         "checkout.html", invoices=invoices, total=sum(i["total"] for i in invoices),
         date_choices=date_choices, chosen_date=chosen_date, slots=slots, any_open=any_open,
         needs_age=needs_age, min_age=MIN_AGE, errors=errors, form=form,
+        lines=lines,
     )
 
 

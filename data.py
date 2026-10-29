@@ -24,18 +24,18 @@ DIET_TAGS = [
 # This is all of the vendors and what each of them sell, this code alows the user to know each vendor,
 # what they sell and things like that so the user can see everything on one page.
 VENDORS = {
-    "sugar-maple": {"name": "Singh Sugar Maple Farm", "category": "Produce / Farm"},
-    "fairy-greens": {"name": "Fairy Greens", "category": "Botanicals & Body Care"},
-    "enchanted-flower": {"name": "Enchanted Flower Farm", "category": "Cut Flowers"},
-    "north-acres": {"name": "North Acres Farm", "category": "Pastured Meats"},
-    "dear-globe": {"name": "Dear Globe Coffee", "category": "Coffee & Drinks"},
-    "rooted": {"name": "Rooted", "category": "Vegan / Gluten-Free"},
-    "pierogi": {"name": "Pierogi", "category": "Prepared Dough"},
-    "cane": {"name": "Cane Collective", "category": "Mixology / Beverages"},
-    "empanadas": {"name": "Tasty Empanadas", "category": "Prepared Empanadas"},
-    "crepe": {"name": "Crepe Shoppe Cafe", "category": "Prepared Crepes"},
-    "bitty-bread": {"name": "Bitty Bread Bakers", "category": "Sourdough Bakery"},
-    "great-harvest": {"name": "Great Harvest Bread", "category": "Bakery"},
+    "sugar-maple": {"name": "Singh Sugar Maple Farm", "category": "Produce / Farm", "image": "apples.jpg"},
+    "fairy-greens": {"name": "Fairy Greens", "category": "Botanicals & Body Care", "image": "greens.jpg"},
+    "enchanted-flower": {"name": "Enchanted Flower Farm", "category": "Cut Flowers", "image": "flowers.jpg"},
+    "north-acres": {"name": "North Acres Farm", "category": "Pastured Meats", "image": "meat.jpg"},
+    "dear-globe": {"name": "Dear Globe Coffee", "category": "Coffee & Drinks", "image": "coffee.jpg"},
+    "rooted": {"name": "Rooted", "category": "Vegan / Gluten-Free", "image": "greens.jpg"},
+    "pierogi": {"name": "Pierogi", "category": "Prepared Dough", "image": "pierogi.jpg"},
+    "cane": {"name": "Cane Collective", "category": "Mixology / Beverages", "image": "mixers.jpg"},
+    "empanadas": {"name": "Tasty Empanadas", "category": "Prepared Empanadas", "image": "empanadas.jpg"},
+    "crepe": {"name": "Crepe Shoppe Cafe", "category": "Prepared Crepes", "image": "crepes.jpg"},
+    "bitty-bread": {"name": "Bitty Bread Bakers", "category": "Sourdough Bakery", "image": "bread.jpg"},
+    "great-harvest": {"name": "Great Harvest Bread", "category": "Bakery", "image": "bread.jpg"},
 }
 
 
@@ -83,7 +83,8 @@ _list = [
          tags=["gluten_free", "plant_based"], cold=1, stock=25, shelf_days=5),
     make("sunflower-shoots", "fairy-greens", "Sunflower Shoots", 450, "each", "grocery",
          tags=["gluten_free", "plant_based"], cold=1, stock=15, shelf_days=5),
-    make("lavender-soap", "fairy-greens", "Lavender Soap", 800, "each", "general", stock=20),
+    make("lavender-soap", "fairy-greens", "Lavender Soap", 800, "each", "general",
+         stock=20),
 
 
 
@@ -191,6 +192,51 @@ _list = [
     make("scone", "great-harvest", "Pumpkin Spice Scone", 450, "each", "grocery",
          contains=["gluten", "dairy", "eggs"], may_contain=["nuts"], stock=24),
 ]
+
+PRODUCT_IMAGES = {
+    "apples": "apples.jpg",
+    "peaches": "peaches.jpg",
+    "ghost-peppers": "peppers.jpg",
+    "maple-syrup": "syrup.jpg",
+    "microgreens": "greens.jpg",
+    "sunflower-shoots": "sunflower-shoots.jpg",
+    "lavender-soap": "soap.jpg",
+    "bouquet": "flowers.jpg",
+    "diy-stems": "flower-stems.jpg",
+    "pork-chops": "meat.jpg",
+    "ground-beef": "ground-beef.jpg",
+    "lamb-chops": "lamb-chops.jpg",
+    "whole-chicken": "whole-chicken.jpg",
+    "coffee-beans": "coffee.jpg",
+    "drip-coffee": "drip-coffee.jpg",
+    "latte": "latte.jpg",
+    "kimchi": "kimchi.jpg",
+    "hummus": "hummus.jpg",
+    "cashew-spread": "cashew-spread.jpg",
+    "juice": "juice.jpg",
+    "pierogi-potato": "pierogi.jpg",
+    "pierogi-cherry": "pierogi-cherry.jpg",
+    "pierogi-kraut": "pierogi-kraut.jpg",
+    "pierogi-hot": "pierogi-hot.jpg",
+    "mixer-ginger": "mixers.jpg",
+    "mixer-old-fashioned": "mixer-old-fashioned.jpg",
+    "mixer-spicy": "mixer-spicy.jpg",
+    "empanada-beef": "empanadas.jpg",
+    "empanada-spinach": "empanada-spinach.jpg",
+    "empanada-bean": "empanada-bean.jpg",
+    "crepe-nutella": "crepes.jpg",
+    "crepe-ham": "crepe-ham.jpg",
+    "crepe-lemon": "crepe-lemon.jpg",
+    "sourdough-wheat": "bread.jpg",
+    "sourdough-cinnamon": "sourdough-cinnamon.jpg",
+    "sourdough-rye": "sourdough-rye.jpg",
+    "honey-wheat": "honey-wheat.jpg",
+    "cranberry-walnut": "cranberry-walnut.jpg",
+    "scone": "scone.jpg",
+}
+
+for _p in _list:
+    _p["image"] = PRODUCT_IMAGES[_p["id"]]
 
 
 for _p in _list:

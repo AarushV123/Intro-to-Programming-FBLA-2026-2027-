@@ -17,7 +17,10 @@
       <tbody>
       {% for l in inv.lines %}
         <tr>
-          <td>{{ l.product.name }}{% if l.choice %} <small>({{ l.choice }})</small>{% endif %}</td>
+          <td class="item-with-image">
+            <img class="line-image" src="{{ url_for('static', filename='images/' ~ l.product.image) }}" alt="" loading="lazy">
+            <span>{{ l.product.name }}{% if l.choice %} <small>({{ l.choice }})</small>{% endif %}</span>
+          </td>
           <td>{{ l.unit_price|money }}</td>
           <td>
             <form method="post" action="{{ url_for('update_cart') }}" class="inline">

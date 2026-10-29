@@ -3,6 +3,7 @@
 {% block content %}
 <section class="panel warn">
   <h1>Please confirm before adding</h1>
+  <img class="confirm-image" src="{{ url_for('static', filename='images/' ~ product.image) }}" alt="{{ product.name }}">
   <p>You are adding <strong>{{ qty }} x {{ product.name }}</strong>. We found:</p>
   <ul>
     {% for r in reasons %}<li>{{ r }}</li>{% endfor %}

@@ -10,6 +10,18 @@
 </div>
 {% endif %}
 
+<section class="panel">
+  <h2>In your order</h2>
+  <div class="checkout-items">
+    {% for line in lines %}
+      <div class="checkout-item">
+        <img class="line-image" src="{{ url_for('static', filename='images/' ~ line.product.image) }}" alt="" loading="lazy">
+        <span>{{ line.qty }} × {{ line.product.name }}</span>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
 {% if date_choices|length > 1 %}
 <form method="get" class="inline">
   <label>Market day

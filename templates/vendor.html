@@ -2,6 +2,7 @@
 {% block title %}{{ vendor.name }} queue{% endblock %}
 {% block content %}
 <h1>{{ vendor.name }}: pickup queue</h1>
+<img class="vendor-cover" src="{{ url_for('static', filename='images/' ~ vendor.image) }}" alt="{{ vendor.category }}">
 <p class="small">Vendor view for packing orders. A real version would be behind a login.</p>
 
 <form method="get" class="inline">
@@ -15,7 +16,12 @@
 <section class="panel">
   <h2>{{ entry.order.slot }} - {{ entry.order.id }} ({{ entry.order.name }})</h2>
   <ul>
-    {% for l in entry.invoice.lines %}<li>{{ l.qty }} x {{ l.name }}{% if l.choice %} ({{ l.choice }}){% endif %}</li>{% endfor %}
+    {% for l in entry.invoice.lines %}
+      <li class="queue-item">
+        {% if l.image %}<img class="line-image" src="{{ url_for('static', filename='images/' ~ l.image) }}" alt="" loading="lazy">{% endif %}
+        <span>{{ l.qty }} x {{ l.name }}{% if l.choice %} ({{ l.choice }}){% endif %}</span>
+      </li>
+    {% endfor %}
   </ul>
   {% for f in entry.invoice.flags %}<p class="small flag">{{ f }}</p>{% endfor %}
 </section>
@@ -23,7 +29,13 @@
   <p>No orders yet for this day.</p>
 {% endfor %}
 
-<p>Other vendors:
-  {% for vid, v in vendors.items() %}<a href="{{ url_for('vendor_queue', vendor_id=vid) }}">{{ v.name }}</a>{% if not loop.last %} &middot; {% endif %}{% endfor %}
-</p>
+<h2>Other vendors</h2>
+<div class="vendor-links">
+  {% for vid, v in vendors.items() %}
+    <a class="vendor-link" href="{{ url_for('vendor_queue', vendor_id=vid) }}">
+      <img src="{{ url_for('static', filename='images/' ~ v.image) }}" alt="" loading="lazy">
+      <span>{{ v.name }}</span>
+    </a>
+  {% endfor %}
+</div>
 {% endblock %}

@@ -1,0 +1,50 @@
+Product photo credits
+
+These locally bundled photos are from Wikimedia Commons or Flickr. Their
+source pages contain the original license information.
+
+ground-beef.jpg - Maksym Kozlenko, "2018-04-22 Minced beef meat", CC BY-SA 4.0
+https://commons.wikimedia.org/wiki/File:2018-04-22_Minced_beef_meat.jpg
+hummus.jpg - Satdeep Gill, "Homemade hummus and pita 03", CC BY-SA 4.0
+https://commons.wikimedia.org/wiki/File:Homemade_hummus_and_pita_03.jpg
+lamb-chops.jpg - domdomegg, "Lamb chops on the barbecue 06", CC BY 4.0
+https://commons.wikimedia.org/wiki/File:Lamb_chops_on_the_barbecue_06.jpg
+pierogi-cherry.jpg - Silar, "Teigtasche mit Kirschen gefüllt", CC BY-SA 3.0
+https://commons.wikimedia.org/wiki/File:001_Teigtasche_mit_Kirschen_gef%C3%BCllt,_Sanok_(2013).jpg
+sourdough-cinnamon.jpg - Mendaliv, "Cinnamon swirl raisin bread", public domain
+https://commons.wikimedia.org/wiki/File:Cinnamon_swirl_raisin_bread.jpg
+sunflower-shoots.jpg - Pannet, "Sunflower microgreens 01", CC BY 4.0
+https://commons.wikimedia.org/wiki/File:Sunflower_microgreens_01.jpg
+
+drip-coffee.jpg - nickgraywfu, "Americana - Waffle House coffee cup", CC BY-SA 2.0
+https://www.flickr.com/photos/35034365374@N01/70038278
+kimchi.jpg - Nutrition, Food Safety & Health, "Kimchi ferment_1 quart jars", CC0
+https://www.flickr.com/photos/93936679@N05/48407633972
+cashew-spread.jpg - David Jackmanson, "Vegan Cheeses", CC BY 2.0
+https://www.flickr.com/photos/58301516@N00/49602016521
+pierogi-kraut.jpg - jasonlam, "Sauerkraut and Mushroom Pierogies", CC BY-SA 2.0
+https://www.flickr.com/photos/93512023@N00/4010163926
+pierogi-hot.jpg - _gee_, "pierogi", CC BY 2.0
+https://www.flickr.com/photos/32426344@N00/6950809723
+mixer-old-fashioned.jpg - Bex.Walton, "Smoked old fashioned", CC BY 2.0
+https://www.flickr.com/photos/7831824@N04/38462259726
+mixer-spicy.jpg - L.A. Foodie, "Jalapeño Margarita", CC BY 2.0
+https://www.flickr.com/photos/67839741@N06/17299533186
+empanada-spinach.jpg - Edsel L, "The Feve Brunch - empanadas", CC BY-SA 2.0
+https://www.flickr.com/photos/27119975@N00/5543175422
+empanada-bean.jpg - J Doll, "Acorn Squash And Black Bean Empanadas", CC BY 3.0
+https://commons.wikimedia.org/w/index.php?curid=73879062
+crepe-ham.jpg - ultrakml, "Breton crepe with fried egg, ham and cheese", CC BY 2.0
+https://www.flickr.com/photos/34948727@N00/8037933920
+crepe-lemon.jpg - avlxyz, "Sugar lemon crepe", CC BY-SA 2.0
+https://www.flickr.com/photos/10559879@N00/4367875876
+sourdough-rye.jpg - loustejskal.com, "Rye Sourdough", CC BY 2.0
+https://www.flickr.com/photos/63311602@N08/39548979530
+honey-wheat.jpg - Stacy Spensley, "honey whole wheat sandwich bread", CC BY 2.0
+https://www.flickr.com/photos/21001756@N06/3722958182
+cranberry-walnut.jpg - vanhookc, "Cranberry and Walnut Bread", CC BY-SA 2.0
+https://www.flickr.com/photos/97651299@N00/48019994001
+scone.jpg - theimpulsivebuy, "Pumpkin Spice Scone Mix", CC BY-SA 2.0
+https://www.flickr.com/photos/27410581@N07/29332446603
+
+The other photos are from Unsplash and used under the Unsplash License.

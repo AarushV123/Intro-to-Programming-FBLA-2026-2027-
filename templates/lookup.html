@@ -2,6 +2,7 @@
 {% block title %}Find My Order{% endblock %}
 {% block content %}
 <section class="panel">
+  <img class="page-image" src="{{ url_for('static', filename='images/flowers.jpg') }}" alt="Fresh flowers from the market">
   <h1>Find my order</h1>
   <form method="post">
     <label>Order number <input name="order_id" placeholder="OEC-1001" required></label>
