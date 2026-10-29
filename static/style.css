@@ -199,6 +199,8 @@ button:active, .button:active { transform: translateY(0); }
   margin-bottom: .75rem;
 }
 .receipt-actions { display: flex; justify-content: flex-end; gap: .65rem; margin-bottom: 1rem; }
+.report-actions { display: flex; justify-content: flex-end; gap: .65rem; margin-bottom: 1rem; }
+.report-table-wrap { overflow-x: auto; }
 .eyebrow { color: var(--green-dark); font-size: .85rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .receipt-summary h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; color: var(--green-dark); }
 .receipt-number { font-weight: 700; font-size: 1.15rem; margin: .25rem 0; }
@@ -214,9 +216,9 @@ button:active, .button:active { transform: translateY(0); }
 .receipt-total h2, .receipt-total p { margin: .2rem 0; }
 @media print {
   body { background: white; color: black; }
-  .top, footer, .skip, .receipt-actions { display: none !important; }
+  .top, footer, .skip, .receipt-actions, .report-controls, .report-actions { display: none !important; }
   main { max-width: none; padding: 0; }
-  .panel { box-shadow: none; break-inside: avoid; }
+  .panel, .filters { box-shadow: none; break-inside: avoid; }
   .receipt-summary, .receipt-total { border-color: #888; }
   a { color: inherit; }
 }

@@ -4,6 +4,7 @@
 <h1>{{ vendor.name }}: pickup queue</h1>
 <img class="vendor-cover" src="{{ url_for('static', filename='images/' ~ vendor.image) }}" alt="{{ vendor.category }}">
 <p class="small">Vendor view for packing orders. A real version would be behind a login.</p>
+<p><a href="{{ url_for('report', vendor=vendor_id) }}">View this vendor's report</a></p>
 
 <form method="get" class="inline">
   <label>Market day

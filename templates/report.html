@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Market report{% endblock %}
+{% block content %}
+<h1>Daily market report</h1>
+<p>Sales totals use the saved vendor invoices. Stock remaining subtracts all orders for the market date.</p>
+
+<form class="filters report-controls" method="get" action="{{ url_for('report') }}">
+  <h2>Filter report</h2>
+  <div class="row">
+    <label>Market date
+      <select name="date">
+        {% for day in filters.date_choices %}
+          <option value="{{ day }}" {% if day == filters.date %}selected{% endif %}>{{ day|nice_date }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Vendor
+      <select name="vendor">
+        <option value="all" {% if filters.vendor == "all" %}selected{% endif %}>All vendors</option>
+        {% for vendor_id, vendor in vendors.items() %}
+          <option value="{{ vendor_id }}" {% if filters.vendor == vendor_id %}selected{% endif %}>{{ vendor.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Pickup window
+      <select name="slot">
+        <option value="all" {% if filters.slot == "all" %}selected{% endif %}>All pickup windows</option>
+        {% for slot in pickup_slots %}
+          <option value="{{ slot }}" {% if filters.slot == slot %}selected{% endif %}>{{ slot }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Sort by
+      <select name="sort">
+        <option value="name" {% if filters.sort == "name" %}selected{% endif %}>Product / vendor name</option>
+        <option value="revenue" {% if filters.sort == "revenue" %}selected{% endif %}>Revenue</option>
+        <option value="units" {% if filters.sort == "units" %}selected{% endif %}>Units sold</option>
+      </select>
+    </label>
+  </div>
+  <button type="submit">Apply filters</button>
+  <a href="{{ url_for('report') }}">Clear</a>
+</form>
+
+<div class="report-actions">
+  <a class="button" href="{{ url_for('report_export', date=filters.date, vendor=filters.vendor, slot=filters.slot, sort=filters.sort) }}">Download CSV</a>
+  <button type="button" onclick="window.print()">Print report</button>
+</div>
+
+{% if not report.has_orders %}
+  <p class="notice" role="status">No orders match these filters. Sales totals are zero; stock is still shown for the selected vendor and date.</p>
+{% endif %}
+
+<section class="panel">
+  <h2>Sales by vendor for {{ filters.date|nice_date }}</h2>
+  {% if filters.slot != "all" %}<p class="small">Pickup window: {{ filters.slot }}</p>{% endif %}
+  <div class="report-table-wrap">
+    <table>
+      <thead>
+        <tr><th>Vendor</th><th>Orders</th><th>Units sold</th><th>Subtotal</th><th>Tax collected</th><th>Total</th></tr>
+      </thead>
+      <tbody>
+      {% for row in report.vendors %}
+        <tr>
+          <td>{{ row.name }}</td><td>{{ row.orders }}</td><td>{{ row.units_sold }}</td>
+          <td>{{ row.subtotal|money }}</td><td>{{ row.tax|money }}</td><td>{{ row.total|money }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Grand totals</th><th>{{ report.totals.orders }}</th><th>{{ report.totals.units_sold }}</th>
+          <th>{{ report.totals.subtotal|money }}</th><th>{{ report.totals.tax|money }}</th><th>{{ report.totals.total|money }}</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Product sales and remaining stock</h2>
+  {% if filters.slot != "all" %}
+    <p class="small">Units sold follows the selected pickup window. Remaining stock subtracts all orders for this date.</p>
+  {% endif %}
+  <div class="report-table-wrap">
+    <table>
+      <thead>
+        <tr><th>Vendor</th><th>Product</th><th>Units sold</th><th>Revenue</th><th>Stock remaining</th></tr>
+      </thead>
+      <tbody>
+      {% for row in report.products %}
+        <tr>
+          <td>{{ row.vendor_name }}</td><td>{{ row.name }}</td><td>{{ row.units_sold }}</td>
+          <td>{{ row.revenue|money }}</td><td>{{ row.remaining }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5">No products match this vendor filter.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -13,6 +13,7 @@ Open http://127.0.0.1:5000
 - app.py: routes and all the logic (tax, slots, constraints, invoices)
 - data.py: gives all of the vendors and products, basically all of there information
 - templates/: the HTML pages
+- The Report page summarizes daily vendor sales, remaining stock, and filtered CSV exports.
 - static/style.css: styling the website
 - orders.json: created automatically when the first order is placed, it basically saves all of the orders
 

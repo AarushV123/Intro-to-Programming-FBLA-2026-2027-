@@ -18,6 +18,12 @@ What this program does:
   5. Lastly, the Cane Collective items need an ID because they have items that are for people 21+ years old.
 """
 
+import csv
+# csv is used to export report data
+
+import io
+# io creates a CSV file in memory for download
+
 import json
 # json lets the app save orders and load them later, meaning every order gets saved and can be pulled again
 
@@ -31,7 +37,7 @@ import re
 from datetime import date, datetime, timedelta
 
 #we used flask as the main way to create the website and its very useful for UI and handling user interactions
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, make_response, redirect, render_template, request, session, url_for
 
 from data import ALLERGENS, DIET_TAGS, PRODUCTS, VENDORS
 #imports the information from the data.py file, meaining the vendors, food....
@@ -132,6 +138,173 @@ def sold_units(orders, date_iso):
                 sold[item["pid"]] = sold.get(item["pid"], 0) + item["qty"] # pid is the product id and qty is the quantity sold
     return sold
     #self explanitory - how many units were sold on that day
+
+
+def report_dates(orders):
+    """List market dates that can be selected in the report."""
+    dates = {order["date"] for order in orders}
+    dates.update(day.isoformat() for day in market_dates())
+    return sorted(dates)
+
+
+def report_filters(orders):
+    """Read report filters and replace invalid values with safe defaults."""
+    dates = report_dates(orders)
+    upcoming_dates = market_dates()
+    default_date = upcoming_dates[0].isoformat() if upcoming_dates else (
+        max(dates) if dates else date.today().isoformat()
+    )
+
+    chosen_date = request.args.get("date", default_date)
+    try:
+        parsed_date = date.fromisoformat(chosen_date)
+        if parsed_date.isoformat() != chosen_date or chosen_date not in dates:
+            chosen_date = default_date
+    except (TypeError, ValueError):
+        chosen_date = default_date
+
+    vendor_id = request.args.get("vendor", "all")
+    if vendor_id not in VENDORS:
+        vendor_id = "all"
+
+    pickup_slot = request.args.get("slot", "all")
+    if pickup_slot != "all" and pickup_slot not in time_slots():
+        pickup_slot = "all"
+
+    sort_by = request.args.get("sort", "name")
+    if sort_by not in ("revenue", "units", "name"):
+        sort_by = "name"
+
+    return {
+        "date": chosen_date,
+        "vendor": vendor_id,
+        "slot": pickup_slot,
+        "sort": sort_by,
+        "date_choices": dates or [default_date],
+    }
+
+
+def report_orders(orders, filters, include_all_slots=False):
+    """Return orders matching the selected date, vendor, and pickup window."""
+    matches = []
+    for order in orders:
+        if order["date"] != filters["date"]:
+            continue
+        if not include_all_slots and filters["slot"] != "all" and order["slot"] != filters["slot"]:
+            continue
+        if filters["vendor"] != "all" and not any(
+            invoice["vendor_id"] == filters["vendor"] for invoice in order["invoices"]
+        ):
+            continue
+        matches.append(order)
+    return matches
+
+
+def sort_report_rows(rows, sort_by):
+    """Sort vendor or product report rows using the selected report order."""
+    if sort_by == "revenue":
+        rows.sort(key=lambda row: (-row["revenue"], row["name"].lower()))
+    elif sort_by == "units":
+        rows.sort(key=lambda row: (-row["units_sold"], row["name"].lower()))
+    else:
+        rows.sort(key=lambda row: row["name"].lower())
+    return rows
+
+
+def vendor_report_rows(orders, filters):
+    """Calculate order, unit, subtotal, tax, and total amounts per vendor."""
+    matching_orders = report_orders(orders, filters)
+    vendor_ids = [filters["vendor"]] if filters["vendor"] != "all" else list(VENDORS)
+    rows = []
+
+    for vendor_id in vendor_ids:
+        invoices = [
+            (order, invoice)
+            for order in matching_orders
+            for invoice in order["invoices"]
+            if invoice["vendor_id"] == vendor_id
+        ]
+        units_sold_count = sum(
+            line["qty"] for _, invoice in invoices for line in invoice.get("lines", [])
+        )
+        subtotal = sum(invoice["subtotal"] for _, invoice in invoices)
+        tax = sum(invoice["tax"] for _, invoice in invoices)
+        total = sum(invoice["total"] for _, invoice in invoices)
+        rows.append({
+            "vendor_id": vendor_id,
+            "name": VENDORS[vendor_id]["name"],
+            "orders": len({order["id"] for order, _ in invoices}),
+            "units_sold": units_sold_count,
+            "subtotal": subtotal,
+            "tax": tax,
+            "total": total,
+            "revenue": total,
+        })
+
+    return sort_report_rows(rows, filters["sort"])
+
+
+def product_report_rows(orders, filters):
+    """Calculate product sales and remaining date-level stock."""
+    matching_orders = report_orders(orders, filters)
+    all_day_orders = report_orders(orders, filters, include_all_slots=True)
+    filtered_sales = sold_units(matching_orders, filters["date"])
+    all_day_sales = sold_units(all_day_orders, filters["date"])
+
+    product_names = {
+        (product["vendor"], product["name"]): product["id"]
+        for product in PRODUCTS.values()
+    }
+    revenue_by_product = {}
+    for order in matching_orders:
+        for invoice in order["invoices"]:
+            vendor_id = invoice["vendor_id"]
+            if filters["vendor"] != "all" and vendor_id != filters["vendor"]:
+                continue
+            for line in invoice.get("lines", []):
+                pid = product_names.get((vendor_id, line["name"]))
+                if pid:
+                    revenue_by_product[pid] = revenue_by_product.get(pid, 0) + line.get(
+                        "total", line.get("unit_price", 0) * line["qty"]
+                    )
+
+    rows = []
+    for product in PRODUCTS.values():
+        if filters["vendor"] != "all" and product["vendor"] != filters["vendor"]:
+            continue
+        pid = product["id"]
+        rows.append({
+            "pid": pid,
+            "vendor_id": product["vendor"],
+            "vendor_name": VENDORS[product["vendor"]]["name"],
+            "name": product["name"],
+            "units_sold": filtered_sales.get(pid, 0),
+            "remaining": product["stock"] - all_day_sales.get(pid, 0),
+            "revenue": revenue_by_product.get(pid, 0),
+        })
+
+    return sort_report_rows(rows, filters["sort"])
+
+
+def build_report(orders, filters):
+    """Build the same report data for the page and CSV download."""
+    vendors = vendor_report_rows(orders, filters)
+    products = product_report_rows(orders, filters)
+    matching_orders = report_orders(orders, filters)
+    totals = {
+        "orders": len({order["id"] for order in matching_orders}),
+        "units_sold": sum(row["units_sold"] for row in vendors),
+        "subtotal": sum(row["subtotal"] for row in vendors),
+        "tax": sum(row["tax"] for row in vendors),
+        "total": sum(row["total"] for row in vendors),
+    }
+    return {
+        "vendors": vendors,
+        "products": products,
+        "totals": totals,
+        "has_orders": bool(matching_orders),
+    }
+
 
 def slot_usage(orders, date_iso, slot):
     """This function is used because we need to track how many cold units and 
@@ -299,6 +472,63 @@ def ensure_cart_exists():
 @app.context_processor # another decorator to make the data available in all templates
 def add_cart_count():
     return {"cart_count": sum(session.get("cart", {}).values())} # session.get gets the cart from the session and js creates a empty dict if it doesn't exist
+
+
+@app.route("/report")
+def report():
+    """Show daily sales and remaining stock for the selected report filters."""
+    orders = load_orders()
+    filters = report_filters(orders)
+    data = build_report(orders, filters)
+    return render_template(
+        "report.html", filters=filters, vendors=VENDORS,
+        pickup_slots=time_slots(), report=data,
+    )
+
+
+@app.route("/report/export")
+def report_export():
+    """Download the report with the same filters and totals as the report page."""
+    orders = load_orders()
+    filters = report_filters(orders)
+    data = build_report(orders, filters)
+    output = io.StringIO(newline="")
+    writer = csv.writer(output)
+    writer.writerow([
+        "Section", "Market date", "Pickup window", "Vendor", "Product",
+        "Orders", "Units sold", "Subtotal ($)", "Tax collected ($)",
+        "Total ($)", "Revenue ($)", "Stock remaining",
+    ])
+
+    def csv_money(cents):
+        return "{:.2f}".format(cents / 100)
+
+    for row in data["vendors"]:
+        writer.writerow([
+            "vendor_summary", filters["date"], filters["slot"],
+            row["name"], "", row["orders"], row["units_sold"],
+            csv_money(row["subtotal"]), csv_money(row["tax"]),
+            csv_money(row["total"]), "", "",
+        ])
+    totals = data["totals"]
+    writer.writerow([
+        "grand_total", filters["date"], filters["slot"], "All shown vendors", "",
+        totals["orders"], totals["units_sold"], csv_money(totals["subtotal"]),
+        csv_money(totals["tax"]), csv_money(totals["total"]), "", "",
+    ])
+    for row in data["products"]:
+        writer.writerow([
+            "product_stock", filters["date"], filters["slot"],
+            row["vendor_name"], row["name"], "", row["units_sold"],
+            "", "", "", csv_money(row["revenue"]), row["remaining"],
+        ])
+
+    response = make_response(output.getvalue())
+    response.headers["Content-Type"] = "text/csv; charset=utf-8"
+    response.headers["Content-Disposition"] = (
+        "attachment; filename=market-report-{}.csv".format(filters["date"])
+    )
+    return response
 
 
 @app.route("/") # @app.route is a decorator that maps the URL "/" to the shop function
