@@ -459,6 +459,17 @@ def age_from_birthday(birthday):
     return years
 
 
+def is_valid_email(email):
+    """Check that an email has a local part and a dotted, well-formed domain."""
+    if len(email) > 254:
+        return False
+    pattern = r"[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+"
+    if re.fullmatch(pattern, email) is None:
+        return False
+    local_part = email.split("@", 1)[0]
+    return len(local_part) <= 64 and not local_part.startswith(".") and not local_part.endswith(".") and ".." not in local_part
+
+
 #pages
 @app.before_request 
 #the @ is a decorator and we use this decorator because we want to chec if the cart is actually their before each request
@@ -697,7 +708,9 @@ def checkout():
         if not form["name"]:
             errors.append("Please enter your name.")
         if not form["email"]:
-            errors.append("Please enter an email or order lookup name.")
+            errors.append("Please enter your email address.")
+        elif not is_valid_email(form["email"]):
+            errors.append("Please enter a valid email address.")
         if form["phone"] and len(re.sub(r"\D", "", form["phone"])) != 10:
             errors.append("Phone numbers need 10 digits (or leave it blank).")
 

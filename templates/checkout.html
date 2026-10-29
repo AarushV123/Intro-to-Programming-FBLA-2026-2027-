@@ -53,7 +53,7 @@
 
   <h2>Your details</h2>
   <label>Name <input name="name" value="{{ form.name }}" required></label>
-  <label>Email <input type="text" name="email" value="{{ form.email }}" required></label>
+  <label>Email <input type="email" name="email" value="{{ form.email }}" autocomplete="email" required></label>
   <label>Phone (optional) <input type="tel" name="phone" value="{{ form.phone }}"></label>
 
   {% if needs_age %}
